@@ -501,3 +501,124 @@ dialog .row { margin-top: 20px; justify-content: flex-end; }
 .all-student { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; align-items: center; }
 .all-student-classes { display: flex; flex-wrap: wrap; gap: 6px; }
 .class-tag { font-family: "JetBrains Mono", monospace; font-size: 0.8rem; padding: 2px 8px; border: 1px solid var(--line-strong); border-radius: 999px; }
+
+/* ---------- Messages ---------- */
+
+.mail-btn { gap: 6px; }
+.mail-btn[aria-current="page"] { border-color: var(--ink); background: var(--paper); }
+.mail-count {
+  min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
+  display: inline-grid; place-items: center;
+  background: var(--marker); color: var(--marker-ink); font-size: 0.6875rem; font-weight: 800;
+}
+.mail-count[hidden] { display: none; }
+
+.main.mail-main { max-width: 1180px; padding-bottom: 24px; }
+.main.mail-main.centered { margin: 0 auto; }
+.mail-main .page-head { margin-bottom: 16px; align-items: center; }
+
+.mail {
+  display: grid; grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  height: calc(100vh - 190px); height: calc(100dvh - 190px); min-height: 480px;
+  background: var(--surface); border: 1.5px solid var(--line); border-radius: 10px; overflow: hidden;
+}
+.mail-list { display: flex; flex-direction: column; min-height: 0; border-right: 1.5px solid var(--line); }
+.mail-list .tabs { padding: 6px 12px 0; flex: none; }
+.mail-search { padding: 12px; border-bottom: 1px solid var(--line); flex: none; }
+.mail-threads { flex: 1; min-height: 0; overflow-y: auto; }
+.mail-threads ul { list-style: none; margin: 0; padding: 0; }
+.mail-list-empty { padding: 24px 16px; }
+
+.thread-row {
+  display: grid; gap: 2px; width: 100%; padding: 12px 16px 12px 18px; text-align: left; cursor: pointer;
+  background: transparent; border: 0; border-bottom: 1px solid var(--line); color: var(--ink); font: inherit;
+}
+.thread-row:hover { background: var(--paper); }
+.thread-row[aria-current="true"] { background: var(--paper); box-shadow: inset 3px 0 0 var(--ink); }
+.thread-row:focus-visible { outline-offset: -3px; }
+.thread-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.thread-top time { flex: none; color: var(--ink-3); font-size: 0.75rem; font-variant-numeric: tabular-nums; }
+.thread-who { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: var(--step--1); color: var(--ink-2); font-weight: 600; }
+.thread-who span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.thread-who svg { flex: none; }
+.thread-subject { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.thread-preview { color: var(--ink-2); font-size: var(--step--1); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* Unread mail is highlighted the way a name is marked on a paper register. */
+.thread-row.unread .thread-who { color: var(--ink); }
+.thread-row.unread .thread-subject { font-weight: 800; }
+.thread-row.unread .thread-subject > span:first-child {
+  padding: 0 3px; margin-left: -3px;
+  background: linear-gradient(transparent 12%, color-mix(in srgb, var(--marker) 42%, var(--surface)) 12%, color-mix(in srgb, var(--marker) 42%, var(--surface)) 92%, transparent 92%);
+}
+
+.mail-reader { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.mail-placeholder { flex: 1; display: grid; place-content: center; justify-items: center; gap: 10px; padding: 32px; text-align: center; color: var(--ink-3); }
+.mail-head { flex: none; padding: 18px 28px 14px; border-bottom: 1px solid var(--line); }
+.mail-head h2 { font-size: var(--step-1); font-weight: 750; overflow-wrap: anywhere; }
+.mail-audience { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+.mail-audience svg { flex: none; }
+.mail-back { display: none; }
+.mail-scroll { flex: 1; min-height: 0; overflow-y: auto; padding: 8px 28px 20px; }
+
+.letter { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 12px; padding: 16px 0; }
+.letter + .letter { border-top: 1px solid var(--line); }
+.letter.group { margin: 12px -12px 4px; padding: 16px 12px; border-top: 0; background: var(--paper); border-radius: 8px; }
+.letter.group + .letter { border-top: 0; }
+.letter-avatar {
+  width: 36px; height: 36px; flex: none; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--paper); box-shadow: inset 0 0 0 1.5px var(--line-strong); color: var(--ink-2); font-size: 0.75rem; font-weight: 750;
+}
+.letter.group .letter-avatar { background: var(--surface); }
+.letter-main header { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.letter-body { margin-top: 6px; max-width: 68ch; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.55; }
+.letter-note { margin-top: 8px; }
+.letter-main .btn.link { margin-top: 6px; }
+
+.mail-reply { flex: none; display: grid; gap: 8px; padding: 12px 28px 16px; border-top: 1.5px solid var(--line); }
+.mail-reply p { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+.mail-reply textarea { min-height: 72px; }
+.mail-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.mail-closed { padding: 14px 28px; border-top: 1.5px solid var(--line); }
+
+.mail-compose { flex: 1; min-height: 0; overflow-y: auto; display: grid; align-content: start; gap: 18px; padding: 20px 28px 0; }
+.mail-compose textarea { min-height: 120px; }
+/* Sending stays in reach however long the group list and message get. */
+.mail-compose .mail-actions { position: sticky; bottom: 0; padding: 12px 0 16px; background: var(--surface); border-top: 1px solid var(--line); }
+.mail-compose .error-text:empty { display: none; }
+.mail-label { font-weight: 600; font-size: var(--step--1); }
+.mail-groups { border: 0; margin: 0; padding: 0; }
+.mail-groups legend { padding: 0; margin-bottom: 6px; font-weight: 600; font-size: var(--step--1); }
+.mail-group-list { max-height: 204px; overflow-y: auto; border: 1.5px solid var(--line-strong); border-radius: var(--radius); }
+.mail-group { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 12px; cursor: pointer; }
+.mail-group + .mail-group { border-top: 1px solid var(--line); }
+.mail-group:hover { background: var(--paper); }
+.mail-group.disabled { cursor: not-allowed; color: var(--ink-3); }
+.mail-group input { width: 18px; height: 18px; flex: none; accent-color: var(--ink); }
+.mail-group > span:nth-of-type(1) { flex: 1; min-width: 0; overflow-wrap: anywhere; font-weight: 600; }
+.mail-reach { margin-top: 8px; font-size: var(--step--1); font-weight: 600; }
+.mail-groups .row { margin-top: 2px; }
+
+.picker-results { list-style: none; margin: 6px 0 0; padding: 0; }
+.picker-results button, .picker-chosen { display: flex; align-items: center; gap: 10px; width: 100%; padding: 6px 8px; text-align: left; }
+.picker-results button { background: transparent; border: 0; border-radius: var(--radius); color: inherit; font: inherit; cursor: pointer; }
+.picker-results button:hover { background: var(--paper); }
+.picker-results strong, .picker-chosen strong { display: block; }
+.picker-none { padding: 6px 8px; }
+.picker-chosen { border: 1.5px solid var(--line-strong); border-radius: var(--radius); }
+.picker-chosen > span:nth-of-type(2) { flex: 1; min-width: 0; }
+
+@media (max-width: 760px) {
+  .main.mail-main { padding: 16px; }
+  .mail { grid-template-columns: minmax(0, 1fr); height: calc(100vh - 150px); height: calc(100dvh - 150px); min-height: 420px; }
+  .mail-list { border-right: 0; }
+  .mail[data-pane="list"] .mail-reader, .mail[data-pane="reader"] .mail-list { display: none; }
+  .mail-back { display: inline-flex; margin-bottom: 6px; }
+  .mail-head, .mail-reply, .mail-compose { padding-left: 16px; padding-right: 16px; }
+  .mail-scroll { padding-left: 16px; padding-right: 16px; }
+  .mail-closed { padding-left: 16px; padding-right: 16px; }
+  .letter.group { margin-left: -8px; margin-right: -8px; padding-left: 8px; padding-right: 8px; }
+}
+@media (max-width: 480px) {
+  .mail-btn-label { display: none; }
+}

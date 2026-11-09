@@ -156,6 +156,27 @@ entity notifications {
   created_at : timestamptz
 }
 
+entity messages {
+  * id : uuid
+  --
+  thread_id : uuid
+  parent_id : uuid <<FK>>
+  sender_id : uuid <<FK>>
+  subject : varchar
+  body : text
+  is_group : boolean
+  audience_label : text
+  created_at : timestamptz
+}
+
+entity message_recipients {
+  * id : uuid
+  --
+  message_id : uuid <<FK>>
+  user_id : uuid <<FK>>
+  read_at : timestamptz
+}
+
 users ||--o| student_profiles
 users ||--o| professor_profiles
 departments ||--o{ student_profiles
@@ -177,6 +198,9 @@ users ||--o{ absence_requests : submits
 course_sections ||--o{ absence_requests
 attendance_sessions ||--o{ absence_requests
 users ||--o{ notifications : receives
+users ||--o{ messages : sends
+messages ||--o{ message_recipients
+users ||--o{ message_recipients : receives
 
 note right of attendance_sessions
   Store only a hash of the

@@ -148,6 +148,34 @@ class Notification(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 
 
+class Message(Base):
+    """One post in a newsletter thread. A thread's first message has parent_id None and thread_id == id."""
+
+    __tablename__ = "messages"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    thread_id: Mapped[str] = mapped_column(String(36), index=True)
+    parent_id: Mapped[str | None] = mapped_column(ForeignKey("messages.id"))
+    sender_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    subject: Mapped[str] = mapped_column(String(150))
+    body: Mapped[str] = mapped_column(Text)
+    # Sent to whole groups. audience_label keeps the names as they were at send time.
+    is_group: Mapped[bool] = mapped_column(Boolean, default=False)
+    audience_label: Mapped[str] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc, index=True)
+    sender: Mapped[User] = relationship()
+
+
+class MessageRecipient(Base):
+    """Who received a message. Group sends are expanded here, so later joiners don't see earlier posts."""
+
+    __tablename__ = "message_recipients"
+    __table_args__ = (UniqueConstraint("message_id", "user_id"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    message_id: Mapped[str] = mapped_column(ForeignKey("messages.id"), index=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
 class LoginAttempt(Base):
     __tablename__ = "login_attempts"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))

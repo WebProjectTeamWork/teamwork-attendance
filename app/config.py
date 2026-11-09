@@ -17,6 +17,8 @@ class Settings(BaseSettings):
     login_attempt_limit: int = 10
     # Professors register with this shared code (given out by the department). Empty disables professor sign-up.
     professor_signup_code: str = ""
+    message_window_minutes: int = 10
+    message_limit_per_user: int = 30
     upload_dir: str = "./uploads"
     max_upload_bytes: int = 5 * 1024 * 1024
     # "production" refuses to start with the built-in development secrets.

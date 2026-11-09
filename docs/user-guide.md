@@ -43,6 +43,20 @@ Open `http://localhost:8000/` to use Roll Call in a browser.
    Approving a request for a class excuses the student from it.
 8. **Statistics** shows attendance per finished session and overall.
 
+## Messages
+
+Select **Messages** at the top of any page. Unread conversations are highlighted
+in yellow, and the button shows how many messages you haven't read.
+
+- **Students** can write to the professors of their classes. When a professor
+  posts to your group, your reply goes only to the professor.
+- **Professors** can write to one student or post to whole groups. Choose
+  **New message**, tick the groups, and the form shows how many students will
+  receive it. A student in two ticked groups receives it once.
+- In a group post you wrote, the reply box goes to the whole group. Select
+  **Reply to** under a student's message to answer only that student.
+- Press Ctrl+Enter to send a reply.
+
 ## Important rules
 
 - Each student can confirm attendance only once per session.

@@ -103,7 +103,8 @@ in an audit log.
 `course_sections`, `enrollments`, `class_meetings`, `attendance_sessions`,
 `attendance_records`, `attendance_code_attempts`, and `audit_logs`.
 `absence_requests` and `notifications` support excused absences and
-professor-cancellation alerts.
+professor-cancellation alerts. `messages` and `message_recipients` hold the
+newsletter; group posts are expanded into one recipient row per student.
 
 The PlantUML files in this directory can be rendered with any PlantUML-compatible
 editor or extension.

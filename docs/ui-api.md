@@ -183,6 +183,24 @@ Professors call `GET /api/v1/sections/{section_id}/statistics`. Its
 `attendance_percentage`, which can drive a class attendance line or bar chart.
 Refresh after opening/closing a session rather than polling aggressively.
 
+## Newsletter
+
+A group is a course section. All routes are under `/api/v1/messages`.
+
+| Route | Purpose |
+|---|---|
+| `POST /messages` | Start a conversation with `subject`, `body`, and either `recipient_id` or `section_ids` (professors only) |
+| `POST /messages/{id}/reply` | Reply with `body`. Answering someone goes only to them; following up your own message goes to its recipients |
+| `GET /messages/inbox`, `GET /messages/sent` | Conversation summaries, newest first |
+| `GET /messages/threads/{id}` | The messages of a conversation that the caller sent or received |
+| `POST /messages/threads/{id}/read` | Mark a conversation as read |
+| `GET /messages/contacts` | People the caller may write to and, for professors, their groups |
+| `GET /messages/unread-count` | Unread messages for the caller |
+
+Writing to someone outside your classes returns 403, a conversation you are not
+part of returns 404, and sending more than `MESSAGE_LIMIT_PER_USER` messages in
+`MESSAGE_WINDOW_MINUTES` returns 429.
+
 ## UI security rules
 
 - Keep access tokens in a secure, HTTP-only cookie for a browser application;

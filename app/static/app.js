@@ -18,6 +18,7 @@ const state = {
   sections: [],
   sectionId: null,
   tab: "sessions",
+  newsletter: false, // showing the Messages page instead of the role's home
   pendingQr: null, // QR token from a scanned link, held until the student is signed in
   timers: new Set(),
 };
@@ -52,6 +53,8 @@ function svgIcon(path, size = 20) {
 
 const ICONS = {
   bell: '<path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.94 1.94 0 0 0 3.4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+  mail: '<rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 7l8.5 6 8.5-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+  group: '<circle cx="9" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2.5 20c.5-4 3-6 6.5-6s6 2 6.5 6M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.4c2 .8 3.2 2.7 3.5 5.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
   check: '<path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>',
   mark: '<rect width="24" height="24" rx="5" fill="#F6D44A"/><path d="M6.5 12.5l3.5 3.5 7.5-8" stroke="#1B2430" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
 };
@@ -464,7 +467,7 @@ function topbar() {
               ),
             ),
           )
-        : el("p", { class: "muted small", style: "padding:0 16px 12px" }, "Nothing yet. Cancelled classes and absence decisions show up here."),
+        : el("p", { class: "muted small", style: "padding:0 16px 12px" }, "Nothing yet. New messages, cancelled classes and absence decisions show up here."),
     );
     document.body.append(panel);
     bell.setAttribute("aria-expanded", "true");
@@ -495,6 +498,7 @@ function topbar() {
       "div",
       { class: "row", style: "flex-wrap:nowrap" },
       el("div", { class: "who" }, el("strong", {}, fullName(state.user)), el("span", { class: "muted small" }, roleText)),
+      messagesButton(),
       bell,
       el("button", { class: "btn secondary small", onclick: signOut }, "Sign out"),
     ),
@@ -506,6 +510,7 @@ async function signOut() {
   state.user = null;
   state.sections = [];
   state.sectionId = null;
+  state.newsletter = false;
   closeOverlays();
   renderAuth("You're signed out.");
 }
@@ -603,6 +608,12 @@ function sessionBars(bySession) {
    ================================================================ */
 
 async function renderStudent() {
+  if (state.newsletter) {
+    const main = el("main", { class: "main mail-main centered" });
+    mount(topbar(), main);
+    await messagesPage(main);
+    return;
+  }
   const liveHost = el("div");
   const statsHost = el("div", { class: "section-block" });
   const absenceHost = el("div", { class: "section-block" });
@@ -1040,6 +1051,12 @@ function absenceForm(stats, onSent) {
 
 async function renderProfessor() {
   state.sections = await api("/sections");
+  if (state.newsletter) {
+    const main = el("main", { class: "main mail-main" });
+    mount(topbar(), el("div", { class: "layout" }, professorSidebar(), main));
+    await messagesPage(main);
+    return;
+  }
   if (state.allStudents) {
     const main = el("main", { class: "main" });
     mount(topbar(), el("div", { class: "layout" }, professorSidebar(), main));
@@ -1075,6 +1092,7 @@ function professorSidebar() {
     const section = await api("/sections", { method: "POST", json: { name } });
     state.sectionId = section.id;
     state.tab = "students";
+    state.newsletter = false;
     toast(`Created ${name}. Add your students next.`);
     renderProfessor();
   }
@@ -1086,9 +1104,10 @@ function professorSidebar() {
       "button",
       {
         class: "all-students",
-        "aria-current": String(Boolean(state.allStudents)),
+        "aria-current": String(Boolean(state.allStudents) && !state.newsletter),
         onclick: () => {
           state.allStudents = true;
+          state.newsletter = false;
           renderProfessor();
         },
       },
@@ -1104,11 +1123,12 @@ function professorSidebar() {
           el(
             "button",
             {
-              "aria-current": String(section.id === state.sectionId),
+              "aria-current": String(section.id === state.sectionId && !state.newsletter),
               onclick: () => {
                 state.sectionId = section.id;
                 state.tab = "sessions";
                 state.allStudents = false;
+                state.newsletter = false;
                 renderProfessor();
               },
             },

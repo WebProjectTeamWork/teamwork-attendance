@@ -36,6 +36,7 @@ from .models import (
     User,
     as_utc,
 )
+from .newsletter import router as newsletter_router
 from .schemas import (
     AttendanceConfirmRequest,
     AttendanceResponse,
@@ -1221,6 +1222,7 @@ def mark_notifications_read(user: User = Depends(current_user), db: Session = De
 
 app.include_router(attendance_scan_router)
 app.include_router(students_router)
+app.include_router(newsletter_router)
 
 # Registered last so every API route above takes precedence over the web UI's files.
 app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="ui")
