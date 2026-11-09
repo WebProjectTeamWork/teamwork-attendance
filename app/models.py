@@ -189,21 +189,27 @@ class VoteStatus(StrEnum):
     CLOSED = "closed"
 
 
+class VoteKind(StrEnum):
+    DATE = "date"  # options are dates and times
+    TEXT = "text"  # options are short texts, such as project topics or yes/no
+
+
 class Vote(Base):
-    """A professor asks one or more classes to pick a date, for example for an exam."""
+    """A professor asks one or more classes to pick a date, or one of several written options."""
 
     __tablename__ = "votes"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     professor_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
     title: Mapped[str] = mapped_column(String(200))
     description: Mapped[str | None] = mapped_column(Text)
+    kind: Mapped[str] = mapped_column(String(10), default=VoteKind.DATE)
     allow_multiple: Mapped[bool] = mapped_column(Boolean, default=False)
     anonymous: Mapped[bool] = mapped_column(Boolean, default=False)
     results_visibility: Mapped[str] = mapped_column(String(20), default=VoteVisibility.AFTER_CLOSE)
     status: Mapped[str] = mapped_column(String(20), default=VoteStatus.OPEN)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
     closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    # The date the professor set when closing the vote.
+    # The option the professor set when closing the vote.
     chosen_option_id: Mapped[str | None] = mapped_column(String(36))
 
 
@@ -211,7 +217,12 @@ class VoteOption(Base):
     __tablename__ = "vote_options"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
     vote_id: Mapped[str] = mapped_column(ForeignKey("votes.id"), index=True)
-    starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    # Order shown to students: by date for date votes, as written for text votes.
+    position: Mapped[int] = mapped_column(Integer, default=0)
+    # Set on date votes.
+    starts_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Set on text votes.
+    label: Mapped[str | None] = mapped_column(String(200))
     note: Mapped[str | None] = mapped_column(String(200))
 
 

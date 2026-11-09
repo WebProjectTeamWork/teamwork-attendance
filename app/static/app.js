@@ -627,8 +627,8 @@ async function renderStudent() {
       { class: "main narrow" },
       el("div", { class: "page-head" }, el("div", {}, el("h1", {}, `Hi, ${state.user.first_name}`), el("p", { class: "muted" }, "Mark yourself present when your professor opens attendance."))),
       liveHost,
-      statsHost,
       votesHost,
+      statsHost,
       absenceHost,
     ),
   );
@@ -1147,7 +1147,7 @@ function professorSidebar() {
           el(
             "button",
             {
-              "aria-current": String(section.id === state.sectionId && !state.newsletter),
+              "aria-current": String(section.id === state.sectionId && !state.newsletter && !state.allStudents && !state.votes),
               onclick: () => {
                 state.sectionId = section.id;
                 state.tab = "sessions";

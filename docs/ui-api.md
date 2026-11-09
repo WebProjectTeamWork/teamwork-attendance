@@ -213,18 +213,20 @@ part of returns 404, and sending more than `MESSAGE_LIMIT_PER_USER` messages in
 ## Votes
 
 A professor lets one or more of their groups vote on a date, for example for an
-exam. All routes are under `/api/v1/votes`.
+exam, or on written options such as a project topic or a yes/no question. All
+routes are under `/api/v1/votes`.
 
 | Route | Purpose |
 |---|---|
-| `POST /votes` | Start a vote (professors): `title`, optional `description`, `section_ids`, 2 to 20 future `options` (`starts_at`, optional `note`), `allow_multiple`, `anonymous`, `results_visibility` (`live`, `after_close`, `professor_only`) |
+| `POST /votes` | Start a vote (professors): `title`, optional `description`, `kind` (`date` or `text`), `section_ids`, 2 to 20 `options`, `allow_multiple`, `anonymous`, `results_visibility` (`live`, `after_close`, `professor_only`). Date options have a future `starts_at`, text options a `label`; both take an optional `note` |
 | `GET /votes` | Professors: the votes they started. Students: the votes of their groups |
 | `GET /votes/{id}` | One vote. Professors get totals, `voted` of `eligible`, `not_voted` and, unless anonymous, the `voters` of each date |
 | `PUT /votes/{id}/choice` | Students: `option_ids` replaces their previous choice; exactly one unless `allow_multiple` |
-| `POST /votes/{id}/close` | Professors: set the date with `option_id`, or leave it out for the most voted date (the earliest on a tie). Students are notified |
+| `POST /votes/{id}/close` | Professors: set the result with `option_id`, or leave it out for the most voted option (on a tie the earliest date, or the first text option). Students are notified |
 | `DELETE /votes/{id}` | Professors: delete the vote; students are notified if it was still open |
 
-Students see `votes` on each option only when `results_visible` is true: after
+Date options are returned sorted by date, text options in the order they were
+written. Students see `votes` on each option only when `results_visible` is true: after
 they voted (`live`), after the vote closed (`after_close`), or never
 (`professor_only`). `chosen_option_id` is always shown once the vote is closed.
 A student who is in two of the groups votes once. Students outside the groups,

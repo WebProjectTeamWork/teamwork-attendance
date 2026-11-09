@@ -183,6 +183,7 @@ entity votes {
   professor_id : uuid <<FK>>
   title : varchar
   description : text
+  kind : varchar
   allow_multiple : boolean
   anonymous : boolean
   results_visibility : varchar
@@ -196,7 +197,9 @@ entity vote_options {
   * id : uuid
   --
   vote_id : uuid <<FK>>
+  position : integer
   starts_at : timestamptz
+  label : varchar
   note : varchar
 }
 

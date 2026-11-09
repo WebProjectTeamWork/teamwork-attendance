@@ -64,18 +64,23 @@ in yellow, and the button shows how many messages you haven't read.
 
 ## Votes
 
-Use a vote to let your groups pick a date, for example for an exam or a make-up lab.
+Use a vote to let your groups pick a date, for example for an exam or a make-up lab,
+or to choose between written options such as project topics or a yes/no question.
 
 - **Professors** select **Votes** in the sidebar and **New vote**. Tick the
-  groups, add two or more dates (each with an optional note such as the room)
-  and choose: one date per student or every date that works, names or anonymous,
-  and when students see the results. Students of the groups get a notification.
+  groups, choose **Dates** or **Something else**, add two or more options (each
+  with an optional note such as the room) and choose: one pick per student or
+  several, names or anonymous, and when students see the results. In a text
+  option, Enter moves to the next one; **Fill in Yes and No** sets up a yes/no
+  question. Students of the groups get a notification.
 - The vote page shows the totals, who picked each date (unless anonymous) and who
-  hasn't answered. **Close vote and set date** preselects the most voted date;
-  pick another one if you want. Everyone in the groups is told the date.
-- **Students** find open votes under **Votes** on their page. Pick a date and
-  select **Save my choice**; you can change it until the vote closes. Decided
-  votes show the date that was set.
+  hasn't answered, and updates while it is open. Under **Set the date** (or
+  **Set the result**) the most voted option is preselected; pick another one if
+  you want and select **Close the vote**. Everyone in the groups is told the result.
+- **Students** find open votes under **Votes** on their page, with a count of the
+  ones they haven't answered. Each vote says whether the professor sees names and
+  when results show. Pick and select **Save my choice**; you can change it until
+  the vote closes. Decided votes show the date or result that was set.
 
 ## Important rules
 

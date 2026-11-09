@@ -280,3 +280,76 @@ def test_students_cannot_start_or_close_votes(client, professor, section, studen
     )
     assert response.status_code == 403
     assert close(client, student, vote).status_code == 403
+
+
+# ---------- Votes on something other than a date ----------
+
+
+def create_text_vote(client, professor, sections, labels=("Library app", "Chat app", "Weather app"), **settings):
+    response = client.post(
+        "/api/v1/votes",
+        json={
+            "title": "Project topic",
+            "kind": "text",
+            "section_ids": list(sections),
+            "options": [{"label": label} for label in labels],
+            **settings,
+        },
+        headers=professor["headers"],
+    )
+    assert response.status_code == 201, response.text
+    return response.json()
+
+
+def test_text_vote_keeps_the_options_in_the_order_written(client, professor, section):
+    vote = create_text_vote(client, professor, [section], labels=("Weather app", "Chat app"))
+    assert vote["kind"] == "text"
+    assert [option["label"] for option in vote["options"]] == ["Weather app", "Chat app"]
+    assert all(option["starts_at"] is None for option in vote["options"])
+
+
+@pytest.mark.parametrize(
+    "options, detail",
+    [
+        ([{"label": "Yes"}, {"label": "  "}], "Every option needs a text"),
+        ([{"label": "Yes"}, {"label": "yes"}], "The same option is listed twice"),
+        ([{"label": "Yes"}, {"label": "No", "starts_at": future(2)}], "Options of a text vote have no date"),
+    ],
+)
+def test_text_options_need_distinct_texts_and_no_dates(client, professor, section, options, detail):
+    response = client.post(
+        "/api/v1/votes",
+        json={"title": "Question", "kind": "text", "section_ids": [section], "options": options},
+        headers=professor["headers"],
+    )
+    assert response.status_code == 422
+    assert response.json()["detail"] == detail
+
+
+def test_date_vote_options_need_a_date(client, professor, section):
+    response = client.post(
+        "/api/v1/votes",
+        json={"title": "Exam", "section_ids": [section], "options": [{"label": "Monday"}, {"starts_at": future(2)}]},
+        headers=professor["headers"],
+    )
+    assert response.status_code == 422
+    assert response.json()["detail"] == "Every option needs a date"
+
+
+def test_text_vote_single_choice_message_talks_about_options(client, professor, section, student):
+    vote = create_text_vote(client, professor, [section])
+    response = choose(client, student, vote, 0, 1)
+    assert response.status_code == 422
+    assert response.json()["detail"] == "Pick one option"
+
+
+def test_text_vote_tie_takes_the_first_option_listed(client, professor, section, student, other_student, db):
+    vote = create_text_vote(client, professor, [section])
+    choose(client, student, vote, 2)
+    choose(client, other_student, vote, 1)
+    closed = close(client, professor, vote).json()
+    assert closed["chosen_option_id"] == vote["options"][1]["id"]
+    message = db.query(Notification).filter_by(user_id=student["id"], title="Vote result: Project topic").one().message
+    assert message == "The result of Project topic is: Chat app."
+    invite = db.query(Notification).filter_by(user_id=student["id"], title="New vote: Project topic").one().message
+    assert "asks you to vote." in invite
