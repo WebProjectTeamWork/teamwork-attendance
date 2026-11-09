@@ -622,3 +622,24 @@ dialog .row { margin-top: 20px; justify-content: flex-end; }
 @media (max-width: 480px) {
   .mail-btn-label { display: none; }
 }
+
+/* Votes */
+input[type="datetime-local"] {
+  min-height: 44px; padding: 8px 12px;
+  background: var(--surface); border: 1.5px solid var(--line-strong); border-radius: var(--radius);
+}
+.vote-form { display: grid; gap: 18px; }
+.vote-dates { display: grid; gap: 8px; }
+.vote-date { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.vote-date input[type="text"] { flex: 1; min-width: 180px; width: auto; }
+.vote-classes { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.vote-row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; align-items: center; }
+.vote-row > div { display: grid; gap: 6px; }
+.vote-option { display: grid; gap: 8px; }
+.vote-bar { height: 10px; background: var(--paper); border-radius: 999px; overflow: hidden; }
+.vote-bar > span { display: block; height: 100%; background: var(--ink); }
+.vote-option.chosen .vote-bar > span { background: var(--good); }
+.vote-picks { display: grid; gap: 10px; border: 0; padding: 0; margin: 0; }
+.vote-picks legend { margin-bottom: 8px; padding: 0; }
+.vote-pick { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; cursor: pointer; font-weight: 600; }
+.vote-pick input { width: 20px; height: 20px; accent-color: var(--ink); }

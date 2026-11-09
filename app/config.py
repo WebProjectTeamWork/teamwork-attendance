@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     message_limit_per_user: int = 30
     upload_dir: str = "./uploads"
     max_upload_bytes: int = 5 * 1024 * 1024
+    # Dates in notification texts are written in this time zone.
+    timezone: str = "Europe/Bucharest"
     # "production" refuses to start with the built-in development secrets.
     app_env: str = "development"
 
