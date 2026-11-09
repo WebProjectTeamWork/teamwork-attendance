@@ -1,4 +1,4 @@
-"""Votes on a date: a professor offers dates to one or more classes, students pick, the professor sets the date."""
+"""Votes: a professor offers dates or written options to one or more classes, students pick, the professor sets the result."""
 
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
@@ -20,6 +20,7 @@ from .models import (
     Vote,
     VoteChoice,
     VoteGroup,
+    VoteKind,
     VoteOption,
     VoteStatus,
     VoteVisibility,
@@ -32,13 +33,16 @@ router = APIRouter(prefix="/api/v1/votes", tags=["votes"])
 
 
 class OptionCreate(BaseModel):
-    starts_at: datetime
+    # starts_at on date votes, label on text votes.
+    starts_at: datetime | None = None
+    label: str | None = Field(default=None, max_length=200)
     note: str | None = Field(default=None, max_length=200)
 
 
 class VoteCreate(BaseModel):
     title: str = Field(min_length=1, max_length=200)
     description: str | None = Field(default=None, max_length=2000)
+    kind: VoteKind = VoteKind.DATE
     section_ids: list[str] = Field(min_length=1, max_length=20)
     options: list[OptionCreate] = Field(min_length=2, max_length=20)
     allow_multiple: bool = False
@@ -51,7 +55,7 @@ class ChoiceUpdate(BaseModel):
 
 
 class VoteClose(BaseModel):
-    # Leave empty to take the date with the most votes (the earliest one on a tie).
+    # Leave empty to take the option with the most votes (the first listed on a tie).
     option_id: str | None = None
 
 
@@ -62,11 +66,12 @@ class GroupSummary(BaseModel):
 
 class OptionResult(BaseModel):
     id: str
-    starts_at: UtcDatetime
+    starts_at: UtcDatetime | None
+    label: str | None
     note: str | None
     # None when the viewer may not see the totals yet.
     votes: int | None = None
-    # Who picked this date: professors only, and only on named votes.
+    # Who picked this option: professors only, and only on named votes.
     voters: list[StudentSummary] | None = None
 
 
@@ -74,6 +79,7 @@ class VoteResponse(BaseModel):
     id: str
     title: str
     description: str | None
+    kind: str
     allow_multiple: bool
     anonymous: bool
     results_visibility: str
@@ -109,7 +115,7 @@ def eligible_students(db: Session, vote: Vote) -> list[User]:
 
 
 def vote_options(db: Session, vote: Vote) -> list[VoteOption]:
-    return db.scalars(select(VoteOption).where(VoteOption.vote_id == vote.id).order_by(VoteOption.starts_at)).all()
+    return db.scalars(select(VoteOption).where(VoteOption.vote_id == vote.id).order_by(VoteOption.position)).all()
 
 
 def counted_choices(db: Session, vote: Vote, eligible_ids: set[str]) -> list[tuple[str, str]]:
@@ -142,6 +148,7 @@ def vote_response(db: Session, vote: Vote, viewer: User) -> VoteResponse:
         id=vote.id,
         title=vote.title,
         description=vote.description,
+        kind=vote.kind,
         allow_multiple=vote.allow_multiple,
         anonymous=vote.anonymous,
         results_visibility=vote.results_visibility,
@@ -150,7 +157,7 @@ def vote_response(db: Session, vote: Vote, viewer: User) -> VoteResponse:
         closed_at=vote.closed_at,
         chosen_option_id=vote.chosen_option_id,
         groups=[GroupSummary(id=section_id, name=name) for section_id, name in groups],
-        options=[OptionResult(id=option.id, starts_at=option.starts_at, note=option.note) for option in options],
+        options=[OptionResult(id=option.id, starts_at=option.starts_at, label=option.label, note=option.note) for option in options],
         results_visible=viewer.role == "professor",
     )
     if viewer.role == "student":
@@ -192,6 +199,11 @@ def notify(db: Session, students: list[User], title: str, message: str) -> None:
         db.add(Notification(user_id=student.id, title=title[:200], message=message))
 
 
+def option_text(option: VoteOption) -> str:
+    text = local_text(option.starts_at) if option.starts_at else option.label
+    return f"{text} ({option.note})" if option.note else text
+
+
 def local_text(moment: datetime) -> str:
     """A date for notification text, in the department's time zone."""
     try:
@@ -223,23 +235,39 @@ def create_vote(
     sections = db.scalars(select(CourseSection).where(CourseSection.id.in_(section_ids))).all()
     if len(sections) != len(section_ids) or any(section.professor_id != professor.id for section in sections):
         raise HTTPException(status_code=404, detail="Section not found")
-    dates = [as_utc(option.starts_at) for option in payload.options]
-    if any(moment <= datetime.now(timezone.utc) for moment in dates):
-        raise HTTPException(status_code=422, detail="Every date must be in the future")
-    if len(set(dates)) != len(dates):
-        raise HTTPException(status_code=422, detail="The same date is offered twice")
+    if payload.kind == VoteKind.DATE:
+        if any(option.starts_at is None for option in payload.options):
+            raise HTTPException(status_code=422, detail="Every option needs a date")
+        dates = [as_utc(option.starts_at) for option in payload.options]
+        if any(moment <= datetime.now(timezone.utc) for moment in dates):
+            raise HTTPException(status_code=422, detail="Every date must be in the future")
+        if len(set(dates)) != len(dates):
+            raise HTTPException(status_code=422, detail="The same date is offered twice")
+        rows = sorted(
+            ((moment, None, option.note) for moment, option in zip(dates, payload.options)), key=lambda row: row[0]
+        )
+    else:
+        labels = [(option.label or "").strip() for option in payload.options]
+        if not all(labels):
+            raise HTTPException(status_code=422, detail="Every option needs a text")
+        if len({label.casefold() for label in labels}) != len(labels):
+            raise HTTPException(status_code=422, detail="The same option is listed twice")
+        if any(option.starts_at is not None for option in payload.options):
+            raise HTTPException(status_code=422, detail="Options of a text vote have no date")
+        rows = [(None, label, option.note) for label, option in zip(labels, payload.options)]
     vote = Vote(
         professor_id=professor.id,
         title=payload.title.strip(),
         description=(payload.description or "").strip() or None,
+        kind=payload.kind,
         allow_multiple=payload.allow_multiple,
         anonymous=payload.anonymous,
         results_visibility=payload.results_visibility,
     )
     db.add(vote)
     db.flush()
-    for option, moment in zip(payload.options, dates):
-        db.add(VoteOption(vote_id=vote.id, starts_at=moment, note=(option.note or "").strip() or None))
+    for position, (moment, label, note) in enumerate(rows):
+        db.add(VoteOption(vote_id=vote.id, position=position, starts_at=moment, label=label, note=(note or "").strip() or None))
     for section_id in section_ids:
         db.add(VoteGroup(vote_id=vote.id, section_id=section_id))
     db.flush()
@@ -247,7 +275,9 @@ def create_vote(
         db,
         eligible_students(db, vote),
         f"New vote: {vote.title}",
-        f"{professor.first_name} {professor.last_name} asks you to pick a date. Open Votes in Roll Call to answer.",
+        f"{professor.first_name} {professor.last_name} asks you to "
+        + ("pick a date" if vote.kind == VoteKind.DATE else "vote")
+        + ". Open Votes in Roll Call to answer.",
     )
     db.add(AuditLog(actor_id=professor.id, action="vote_created", entity_type="vote", entity_id=vote.id))
     db.commit()
@@ -267,15 +297,15 @@ def set_choice(
     student: User = Depends(require_role("student")),
     db: Session = Depends(get_db),
 ) -> VoteResponse:
-    """Pick dates. A new choice replaces the previous one until the vote closes."""
+    """Pick options. A new choice replaces the previous one until the vote closes."""
     vote = eligible_vote(db, vote_id, student)
     if vote.status != VoteStatus.OPEN:
         raise HTTPException(status_code=409, detail="This vote is closed")
     picked = set(payload.option_ids)
     if not picked <= {option.id for option in vote_options(db, vote)}:
-        raise HTTPException(status_code=422, detail="Pick dates from this vote")
+        raise HTTPException(status_code=422, detail="Pick options from this vote")
     if not vote.allow_multiple and len(picked) != 1:
-        raise HTTPException(status_code=422, detail="Pick one date")
+        raise HTTPException(status_code=422, detail="Pick one date" if vote.kind == VoteKind.DATE else "Pick one option")
     db.execute(delete(VoteChoice).where(VoteChoice.vote_id == vote.id, VoteChoice.student_id == student.id))
     for option_id in picked:
         db.add(VoteChoice(vote_id=vote.id, option_id=option_id, student_id=student.id))
@@ -294,7 +324,7 @@ def close_vote(
     professor: User = Depends(require_role("professor")),
     db: Session = Depends(get_db),
 ) -> VoteResponse:
-    """End the vote and set the date. Every student in the classes is told the date."""
+    """End the vote and set the result. Every student in the classes is told what it is."""
     vote = owned_vote(db, vote_id, professor)
     if vote.status != VoteStatus.OPEN:
         raise HTTPException(status_code=409, detail="This vote is already closed")
@@ -302,24 +332,22 @@ def close_vote(
     if payload.option_id is not None:
         chosen = next((option for option in options if option.id == payload.option_id), None)
         if chosen is None:
-            raise HTTPException(status_code=422, detail="Pick a date from this vote")
+            raise HTTPException(status_code=422, detail="Pick an option from this vote")
     else:
         eligible = eligible_students(db, vote)
         counts = {option.id: 0 for option in options}
         for option_id, _ in counted_choices(db, vote, {student.id for student in eligible}):
             counts[option_id] += 1
-        # options are sorted by date, so max() keeps the earliest of equal counts
+        # max() keeps the first of equal counts: the earliest date, or the first option listed
         chosen = max(options, key=lambda option: counts[option.id])
     vote.status = VoteStatus.CLOSED
     vote.closed_at = datetime.now(timezone.utc)
     vote.chosen_option_id = chosen.id
-    when = local_text(chosen.starts_at)
-    notify(
-        db,
-        eligible_students(db, vote),
-        f"Date set: {vote.title}",
-        f"The date for {vote.title} is {when}" + (f" ({chosen.note})." if chosen.note else "."),
-    )
+    if vote.kind == VoteKind.DATE:
+        title, message = f"Date set: {vote.title}", f"The date for {vote.title} is {option_text(chosen)}."
+    else:
+        title, message = f"Vote result: {vote.title}", f"The result of {vote.title} is: {option_text(chosen)}."
+    notify(db, eligible_students(db, vote), title, message)
     db.add(AuditLog(actor_id=professor.id, action="vote_closed", entity_type="vote", entity_id=vote.id))
     db.commit()
     return vote_response(db, vote, professor)

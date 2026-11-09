@@ -53,6 +53,13 @@ def ensure_additive_schema() -> None:
             "ip_address": "VARCHAR(45)",
             "device_id": "VARCHAR(128)",
         },
+        "votes": {
+            "kind": "VARCHAR(10) DEFAULT 'date'",
+        },
+        "vote_options": {
+            "position": "INTEGER DEFAULT 0",
+            "label": "VARCHAR(200)",
+        },
     }
     inspector = inspect(engine)
     with engine.begin() as connection:
@@ -63,3 +70,6 @@ def ensure_additive_schema() -> None:
                     connection.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {sql_type}"))
         # Older databases made QR tokens single-use with this index; one token now serves the whole class.
         connection.execute(text("DROP INDEX IF EXISTS ux_attendance_records_qr_nonce"))
+        # Text vote options have no date. SQLite cannot drop NOT NULL; recreate an old development database instead.
+        if engine.dialect.name == "postgresql":
+            connection.execute(text("ALTER TABLE vote_options ALTER COLUMN starts_at DROP NOT NULL"))
