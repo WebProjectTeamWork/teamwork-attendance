@@ -56,6 +56,11 @@ in yellow, and the button shows how many messages you haven't read.
 - In a group post you wrote, the reply box goes to the whole group. Select
   **Reply to** under a student's message to answer only that student.
 - Press Ctrl+Enter to send a reply.
+- **Students** can choose **Subscriptions** to follow any newsletter or group.
+  Following a group brings you its posts but doesn't add you to the class or
+  affect your attendance. You can reply to posts you receive.
+- **Professors** can choose **Newsletters** to create a list, then pick it under
+  **Groups and newsletters** when writing a new message.
 
 ## Votes
 

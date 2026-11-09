@@ -88,7 +88,16 @@ async function messagesPage(main) {
       "div",
       { class: "page-head" },
       el("h1", {}, "Messages"),
-      el("button", { class: "btn", onclick: () => leaveDraft().then((ok) => ok && drawCompose()) }, "New message"),
+      el(
+        "div",
+        { class: "row" },
+        el(
+          "button",
+          { class: "btn secondary", onclick: () => leaveDraft().then((ok) => ok && (state.user.role === "professor" ? drawNewsletters() : drawSubscriptions())) },
+          state.user.role === "professor" ? "Newsletters" : "Subscriptions",
+        ),
+        el("button", { class: "btn", onclick: () => leaveDraft().then((ok) => ok && drawCompose()) }, "New message"),
+      ),
     ),
     root,
   );
@@ -346,8 +355,8 @@ async function messagesPage(main) {
     return { node: host, value: () => chosen?.id || null, name: () => chosen?.name, touched: () => input.value !== "" };
   }
 
-  function groupPicker(groups) {
-    const boxes = groups.map((group) => ({
+  function groupPicker(items) {
+    const boxes = items.map((group) => ({
       group,
       input: el("input", { type: "checkbox", disabled: group.student_ids.length === 0, onchange: update }),
     }));
@@ -363,7 +372,7 @@ async function messagesPage(main) {
 
     function update() {
       const count = reachCount();
-      reach.textContent = count ? `${studentCount(count)} will receive this message.` : "Choose at least one group.";
+      reach.textContent = count ? `${studentCount(count)} will receive this message.` : "Choose at least one group or newsletter.";
       const available = boxes.filter((box) => !box.input.disabled);
       allButton.textContent = available.length && available.every((box) => box.input.checked) ? "Clear all" : "Select all";
     }
@@ -382,18 +391,19 @@ async function messagesPage(main) {
     const node = el(
       "fieldset",
       { class: "mail-groups" },
-      el("legend", {}, "Groups"),
+      el("legend", {}, "Groups and newsletters"),
       el(
         "div",
         { class: "mail-group-list" },
         boxes.map(({ group, input }) =>
-          el("label", { class: input.disabled ? "mail-group disabled" : "mail-group" }, input, el("span", {}, group.name), el("span", { class: "muted small" }, group.student_ids.length ? studentCount(group.student_ids.length) : "No students yet")),
+          el("label", { class: input.disabled ? "mail-group disabled" : "mail-group" }, input, el("span", {}, group.name), el("span", { class: "muted small" }, group.student_ids.length ? studentCount(group.student_ids.length) : group.kind === "newsletter" ? "No subscribers yet" : "No students yet")),
         ),
       ),
       el("div", { class: "row spread" }, reach, allButton),
     );
     update();
-    return { node, value: () => selected().map((box) => box.group.id), count: reachCount };
+    const idsOf = (kind) => selected().filter((box) => box.group.kind === kind).map((box) => box.group.id);
+    return { node, value: () => ({ section_ids: idsOf("group"), newsletter_ids: idsOf("newsletter") }) };
   }
 
   async function drawCompose() {
@@ -406,10 +416,11 @@ async function messagesPage(main) {
     mail.openId = null;
     drawList();
     showPane("reader");
-    const { people, groups } = mail.contacts;
+    const { people, groups, newsletters } = mail.contacts;
+    const lists = [...groups.map((item) => ({ ...item, kind: "group" })), ...newsletters.map((item) => ({ ...item, kind: "newsletter" }))];
     const header = el("header", { class: "mail-head" }, backButton(), el("h2", {}, "New message"));
 
-    if (!people.length && !groups.length) {
+    if (!people.length && !lists.length) {
       mail.hasDraft = () => false;
       fill(reader, header, el("div", { class: "mail-placeholder" }, el("p", {}, state.user.role === "professor" ? "Create a class and add students before sending messages." : "You can write to your professors once you are added to a class.")));
       return;
@@ -417,12 +428,12 @@ async function messagesPage(main) {
 
     const isProfessor = state.user.role === "professor";
     const picker = personPicker(people);
-    const groupsPicker = isProfessor ? groupPicker(groups) : null;
+    const groupsPicker = isProfessor ? groupPicker(lists) : null;
     const subject = el("input", { type: "text", maxlength: 150, required: true });
     const body = el("textarea", { rows: 8, maxlength: 5000, required: true });
     const error = el("p", { class: "error-text", role: "alert" });
     const sendButton = el("button", { class: "btn", type: "submit" }, "Send message");
-    let toGroup = isProfessor && groups.length > 0;
+    let toGroup = isProfessor && lists.length > 0;
     const audienceHost = el("div");
     mail.hasDraft = () => subject.value.trim() !== "" || body.value.trim() !== "";
 
@@ -440,7 +451,7 @@ async function messagesPage(main) {
           { class: "choice-group" },
           el("legend", {}, "Send to"),
           [
-            [true, "Whole groups"],
+            [true, "Groups and newsletters"],
             [false, "One student"],
           ].map(([value, label]) =>
             el(
@@ -465,9 +476,9 @@ async function messagesPage(main) {
     async function send(event) {
       event.preventDefault();
       error.textContent = "";
-      const audience = toGroup ? { section_ids: groupsPicker.value() } : { recipient_id: picker.value() };
-      if (toGroup ? !audience.section_ids.length : !audience.recipient_id) {
-        error.textContent = toGroup ? "Choose at least one group." : `Choose a ${isProfessor ? "student" : "professor"}.`;
+      const audience = toGroup ? groupsPicker.value() : { recipient_id: picker.value() };
+      if (toGroup ? !audience.section_ids.length && !audience.newsletter_ids.length : !audience.recipient_id) {
+        error.textContent = toGroup ? "Choose at least one group or newsletter." : `Choose a ${isProfessor ? "student" : "professor"}.`;
         return;
       }
       sendButton.disabled = true;
@@ -498,6 +509,181 @@ async function messagesPage(main) {
       ),
     );
     (toGroup ? subject : picker.value() ? subject : audienceHost.querySelector("input"))?.focus();
+  }
+
+  function openSidePane(title) {
+    mail.openId = null;
+    mail.hasDraft = () => false;
+    drawList();
+    showPane("reader");
+    return el("header", { class: "mail-head" }, backButton(), el("h2", {}, title));
+  }
+
+  async function drawSubscriptions() {
+    let directory;
+    try {
+      directory = await api("/subscriptions");
+    } catch (error) {
+      toast(error.message);
+      return;
+    }
+    const header = openSidePane("Subscriptions");
+    const rowsHost = el("div");
+    let term = "";
+    const filter = el("input", {
+      type: "text",
+      placeholder: "Search groups and newsletters",
+      "aria-label": "Search groups and newsletters",
+      oninput: () => {
+        term = foldText(filter.value.trim());
+        drawRows();
+      },
+    });
+
+    async function toggle(item, path) {
+      const subscribing = !item.subscribed;
+      try {
+        await api(`/subscriptions/${path}/${item.id}`, { method: subscribing ? "PUT" : "DELETE" });
+        item.subscribed = subscribing;
+        toast(subscribing ? `Subscribed to ${item.name}` : `Unsubscribed from ${item.name}`);
+        drawRows();
+      } catch (error) {
+        toast(error.message);
+      }
+    }
+
+    function row(item, path) {
+      return el(
+        "li",
+        { class: "sub-row" },
+        el(
+          "div",
+          {},
+          el("strong", {}, item.name),
+          el("p", { class: "muted small" }, item.owner_name),
+          item.description ? el("p", { class: "small sub-description" }, item.description) : null,
+        ),
+        item.member
+          ? el("span", { class: "muted small sub-state" }, "Your class")
+          : el("button", { class: item.subscribed ? "btn secondary small" : "btn small", "aria-label": `${item.subscribed ? "Unsubscribe from" : "Subscribe to"} ${item.name}`, onclick: () => toggle(item, path) }, item.subscribed ? "Unsubscribe" : "Subscribe"),
+      );
+    }
+
+    function block(title, items, path, emptyText) {
+      const matches = items
+        .filter((item) => foldText(`${item.name} ${item.owner_name} ${item.description || ""}`).includes(term))
+        .sort((a, b) => Number(b.subscribed) - Number(a.subscribed));
+      return el(
+        "div",
+        { class: "sub-block" },
+        el("h3", {}, title),
+        matches.length ? el("ul", {}, matches.map((item) => row(item, path))) : el("p", { class: "muted small" }, term ? "No matches." : emptyText),
+      );
+    }
+
+    function drawRows() {
+      fill(rowsHost, block("Newsletters", directory.newsletters, "newsletters", "No professor has created a newsletter yet."), block("Groups", directory.groups, "groups", "No groups exist yet."));
+    }
+
+    drawRows();
+    fill(reader,
+      header,
+      el(
+        "div",
+        { class: "mail-scroll" },
+        el("p", { class: "muted small sub-intro" }, "Get posts from the groups and newsletters you choose. Subscribing to a group doesn't add you to the class or affect your attendance."),
+        filter,
+        rowsHost,
+      ),
+    );
+  }
+
+  async function drawNewsletters() {
+    let newsletters;
+    try {
+      newsletters = await api("/newsletters");
+    } catch (error) {
+      toast(error.message);
+      return;
+    }
+    const header = openSidePane("Newsletters");
+    const listHost2 = el("div");
+    const name = el("input", { type: "text", maxlength: 120, required: true });
+    const description = el("input", { type: "text", maxlength: 500 });
+    const createButton = el("button", { class: "btn", type: "submit" }, "Create newsletter");
+    mail.hasDraft = () => name.value.trim() !== "" || description.value.trim() !== "";
+
+    async function remove(item) {
+      const yes = await confirmDialog({ title: `Delete ${item.name}?`, body: "Subscribers stop receiving it. Posts already sent stay in their messages.", confirmLabel: "Delete newsletter", danger: true });
+      if (!yes) return;
+      try {
+        await api(`/newsletters/${item.id}`, { method: "DELETE" });
+        newsletters = newsletters.filter((other) => other.id !== item.id);
+        toast(`Deleted ${item.name}`);
+        drawRows();
+      } catch (error) {
+        toast(error.message);
+      }
+    }
+
+    function drawRows() {
+      fill(listHost2,
+        newsletters.length
+          ? el(
+              "ul",
+              {},
+              newsletters.map((item) =>
+                el(
+                  "li",
+                  { class: "sub-row" },
+                  el(
+                    "div",
+                    {},
+                    el("strong", {}, item.name),
+                    el("p", { class: "muted small" }, item.subscriber_count === 1 ? "1 subscriber" : `${item.subscriber_count} subscribers`),
+                    item.description ? el("p", { class: "small sub-description" }, item.description) : null,
+                  ),
+                  el("button", { class: "btn danger small", "aria-label": `Delete ${item.name}`, onclick: () => remove(item) }, "Delete"),
+                ),
+              ),
+            )
+          : el("p", { class: "muted small" }, "Create a newsletter and students can subscribe to it from their Messages page."),
+      );
+    }
+
+    async function create(event) {
+      event.preventDefault();
+      createButton.disabled = true;
+      try {
+        const created = await api("/newsletters", { method: "POST", json: { name: name.value, description: description.value } });
+        newsletters = [...newsletters, created].sort((a, b) => a.name.localeCompare(b.name));
+        name.value = "";
+        description.value = "";
+        toast(`Created ${created.name}`);
+        drawRows();
+      } catch (error) {
+        toast(error.message);
+      } finally {
+        createButton.disabled = false;
+      }
+    }
+
+    drawRows();
+    fill(reader,
+      header,
+      el(
+        "div",
+        { class: "mail-scroll" },
+        el(
+          "form",
+          { class: "sub-form", onsubmit: create },
+          el("label", { class: "field" }, el("span", {}, "Name"), name),
+          el("label", { class: "field" }, el("span", {}, "Description ", el("span", { class: "hint" }, "(optional)")), description),
+          el("div", { class: "mail-actions" }, createButton),
+        ),
+        el("div", { class: "sub-block" }, el("h3", {}, "Your newsletters"), listHost2),
+      ),
+    );
   }
 
   async function poll() {

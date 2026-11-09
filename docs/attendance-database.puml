@@ -216,6 +216,31 @@ entity vote_choices {
   created_at : timestamptz
 }
 
+entity newsletters {
+  * id : uuid
+  --
+  owner_id : uuid <<FK>>
+  name : varchar
+  description : varchar
+  created_at : timestamptz
+}
+
+entity newsletter_subscriptions {
+  * id : uuid
+  --
+  newsletter_id : uuid <<FK>>
+  student_id : uuid <<FK>>
+  created_at : timestamptz
+}
+
+entity section_subscriptions {
+  * id : uuid
+  --
+  section_id : uuid <<FK>>
+  student_id : uuid <<FK>>
+  created_at : timestamptz
+}
+
 users ||--o| student_profiles
 users ||--o| professor_profiles
 departments ||--o{ student_profiles
@@ -240,6 +265,11 @@ users ||--o{ notifications : receives
 users ||--o{ messages : sends
 messages ||--o{ message_recipients
 users ||--o{ message_recipients : receives
+users ||--o{ newsletters : runs
+newsletters ||--o{ newsletter_subscriptions
+users ||--o{ newsletter_subscriptions : subscribes
+course_sections ||--o{ section_subscriptions
+users ||--o{ section_subscriptions : follows
 users ||--o{ votes : starts
 votes ||--o{ vote_options
 votes ||--o{ vote_groups

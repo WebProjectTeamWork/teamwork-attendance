@@ -237,6 +237,38 @@ class VoteChoice(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
 
 
+class Newsletter(Base):
+    """A mailing list a professor runs, separate from any class."""
+
+    __tablename__ = "newsletters"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    owner_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    name: Mapped[str] = mapped_column(String(120))
+    description: Mapped[str] = mapped_column(String(500), default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
+    owner: Mapped[User] = relationship()
+
+
+class NewsletterSubscription(Base):
+    __tablename__ = "newsletter_subscriptions"
+    __table_args__ = (UniqueConstraint("newsletter_id", "student_id"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    newsletter_id: Mapped[str] = mapped_column(ForeignKey("newsletters.id"), index=True)
+    student_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
+
+
+class SectionSubscription(Base):
+    """Receive a group's posts without being enrolled, so attendance and statistics are unaffected."""
+
+    __tablename__ = "section_subscriptions"
+    __table_args__ = (UniqueConstraint("section_id", "student_id"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    section_id: Mapped[str] = mapped_column(ForeignKey("course_sections.id"), index=True)
+    student_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
+
+
 class LoginAttempt(Base):
     __tablename__ = "login_attempts"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))

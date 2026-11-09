@@ -270,3 +270,157 @@ def test_sending_is_rate_limited(client, professor, student, monkeypatch):
     send(client, professor, recipient_id=student["id"])
     send(client, professor, recipient_id=student["id"])
     assert post(client, professor, recipient_id=student["id"]).status_code == 429
+
+
+# Subscriptions
+
+
+def make_newsletter(client, professor, name="Erasmus news") -> str:
+    response = client.post("/api/v1/newsletters", json={"name": name, "description": "Exchange programmes"}, headers=professor["headers"])
+    assert response.status_code == 201, response.text
+    return response.json()["id"]
+
+
+def follow(client, student, kind, target_id):
+    return client.put(f"/api/v1/subscriptions/{kind}/{target_id}", headers=student["headers"])
+
+
+def unfollow(client, student, kind, target_id):
+    return client.delete(f"/api/v1/subscriptions/{kind}/{target_id}", headers=student["headers"])
+
+
+def directory(client, student) -> dict:
+    return client.get("/api/v1/subscriptions", headers=student["headers"]).json()
+
+
+def test_group_subscriber_receives_group_posts(client, professor, section, student, outsider):
+    assert follow(client, outsider, "groups", section).status_code == 204
+    assert send(client, professor, section_ids=[section])["recipient_count"] == 2
+    assert box(client, outsider)[0]["is_group"] is True
+
+
+def test_group_subscription_is_not_enrollment(client, professor, section, outsider):
+    follow(client, outsider, "groups", section)
+    assert client.get("/api/v1/sections", headers=outsider["headers"]).json() == []
+    assert client.get(f"/api/v1/sections/{section}/students", headers=professor["headers"]).json() == []
+    assert client.get("/api/v1/students/me/statistics", headers=outsider["headers"]).json()["total_sessions"] == 0
+
+
+def test_enrolled_student_cannot_subscribe_to_their_own_group(client, section, student):
+    assert follow(client, student, "groups", section).status_code == 409
+
+
+def test_unsubscribing_stops_future_posts_and_keeps_old_ones(client, professor, section, student, outsider):
+    follow(client, outsider, "groups", section)
+    send(client, professor, section_ids=[section], subject="First")
+    assert unfollow(client, outsider, "groups", section).status_code == 204
+    send(client, professor, section_ids=[section], subject="Second")
+    assert [summary["subject"] for summary in box(client, outsider)] == ["First"]
+
+
+def test_subscribing_twice_is_harmless(client, professor, section, student, outsider):
+    assert follow(client, outsider, "groups", section).status_code == 204
+    assert follow(client, outsider, "groups", section).status_code == 204
+    assert send(client, professor, section_ids=[section])["recipient_count"] == 2
+
+
+def test_newsletter_reaches_only_its_subscribers(client, professor, student, other_student):
+    newsletter = make_newsletter(client, professor)
+    follow(client, student, "newsletters", newsletter)
+    assert send(client, professor, newsletter_ids=[newsletter])["recipient_count"] == 1
+    assert unread(client, student) == 1
+    assert unread(client, other_student) == 0
+    assert box(client, professor, "sent")[0]["counterpart"] == "Erasmus news"
+
+
+def test_student_in_group_and_newsletter_gets_one_copy(client, professor, section, student):
+    newsletter = make_newsletter(client, professor)
+    follow(client, student, "newsletters", newsletter)
+    assert send(client, professor, section_ids=[section], newsletter_ids=[newsletter])["recipient_count"] == 1
+    assert unread(client, student) == 1
+
+
+def test_newsletter_without_subscribers_is_refused(client, professor):
+    assert post(client, professor, newsletter_ids=[make_newsletter(client, professor)]).status_code == 422
+
+
+def test_professor_cannot_post_to_another_professors_newsletter(client, professor, other_professor):
+    assert post(client, other_professor, newsletter_ids=[make_newsletter(client, professor)]).status_code == 404
+
+
+def test_student_cannot_post_to_a_newsletter(client, professor, student):
+    assert post(client, student, newsletter_ids=[make_newsletter(client, professor)]).status_code == 403
+
+
+def test_subscriber_can_reply_and_get_an_answer(client, professor, outsider):
+    newsletter = make_newsletter(client, professor)
+    follow(client, outsider, "newsletters", newsletter)
+    issue = send(client, professor, newsletter_ids=[newsletter])
+    assert thread(client, outsider, issue["thread_id"]).json()["can_reply"] is True
+    question = reply(client, outsider, issue["id"], "Is Spain included?")
+    assert question.status_code == 201
+    assert reply(client, professor, question.json()["id"], "Yes.").status_code == 201
+    assert unread(client, outsider) == 2
+
+
+def test_subscriber_cannot_start_a_conversation(client, professor, section, outsider):
+    follow(client, outsider, "groups", section)
+    assert post(client, outsider, recipient_id=professor["id"]).status_code == 403
+    assert client.get("/api/v1/messages/contacts", headers=outsider["headers"]).json()["people"] == []
+
+
+def test_former_subscriber_cannot_reply(client, professor, outsider):
+    newsletter = make_newsletter(client, professor)
+    follow(client, outsider, "newsletters", newsletter)
+    issue = send(client, professor, newsletter_ids=[newsletter])
+    unfollow(client, outsider, "newsletters", newsletter)
+    assert reply(client, outsider, issue["id"]).status_code == 403
+
+
+def test_directory_marks_membership_and_subscriptions(client, professor, section, student):
+    other_group = create_section(client, professor, "Algorithms")
+    newsletter = make_newsletter(client, professor)
+    follow(client, student, "groups", other_group)
+    body = directory(client, student)
+    assert {group["name"]: (group["member"], group["subscribed"]) for group in body["groups"]} == {"Databases": (True, False), "Algorithms": (False, True)}
+    assert body["newsletters"][0]["id"] == newsletter
+    assert body["newsletters"][0]["owner_name"] == "Test Professor"
+    assert body["newsletters"][0]["subscribed"] is False
+
+
+def test_directory_does_not_expose_rosters(client, section, student, outsider):
+    text = client.get("/api/v1/subscriptions", headers=outsider["headers"]).text
+    assert student["id"] not in text and "student@example.com" not in text
+
+
+def test_professors_have_no_subscriptions(client, professor, section):
+    assert client.get("/api/v1/subscriptions", headers=professor["headers"]).status_code == 403
+    assert follow(client, professor, "groups", section).status_code == 403
+
+
+def test_unknown_targets_return_404(client, outsider):
+    assert follow(client, outsider, "groups", "missing").status_code == 404
+    assert follow(client, outsider, "newsletters", "missing").status_code == 404
+
+
+def test_professor_sees_subscriber_counts_for_own_newsletters_only(client, professor, other_professor, outsider):
+    newsletter = make_newsletter(client, professor)
+    follow(client, outsider, "newsletters", newsletter)
+    [listed] = client.get("/api/v1/newsletters", headers=professor["headers"]).json()
+    assert listed["subscriber_count"] == 1
+    assert client.get("/api/v1/newsletters", headers=other_professor["headers"]).json() == []
+    assert client.get("/api/v1/newsletters", headers=outsider["headers"]).status_code == 403
+
+
+def test_deleting_a_newsletter_keeps_sent_posts(client, professor, other_professor, outsider):
+    newsletter = make_newsletter(client, professor)
+    follow(client, outsider, "newsletters", newsletter)
+    send(client, professor, newsletter_ids=[newsletter])
+    assert client.delete(f"/api/v1/newsletters/{newsletter}", headers=other_professor["headers"]).status_code == 404
+    assert client.delete(f"/api/v1/newsletters/{newsletter}", headers=professor["headers"]).status_code == 204
+    assert directory(client, outsider)["newsletters"] == []
+    assert len(box(client, outsider)) == 1
+
+
+def test_blank_newsletter_name_is_refused(client, professor):
+    assert client.post("/api/v1/newsletters", json={"name": "  "}, headers=professor["headers"]).status_code == 422

@@ -643,3 +643,15 @@ input[type="datetime-local"] {
 .vote-picks legend { margin-bottom: 8px; padding: 0; }
 .vote-pick { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; cursor: pointer; font-weight: 600; }
 .vote-pick input { width: 20px; height: 20px; accent-color: var(--ink); }
+
+/* Subscriptions and newsletters */
+.sub-intro { margin: 12px 0; max-width: 68ch; }
+.sub-block { margin-top: 22px; }
+.sub-block h3 { font-size: var(--step-0); font-weight: 750; margin-bottom: 4px; }
+.sub-block ul { list-style: none; margin: 0; padding: 0; }
+.sub-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); }
+.sub-row:first-child { border-top: 0; }
+.sub-row > div { min-width: 0; overflow-wrap: anywhere; }
+.sub-row > .btn, .sub-state { flex: none; }
+.sub-description { margin-top: 4px; max-width: 68ch; }
+.sub-form { display: grid; gap: 14px; padding-top: 16px; }

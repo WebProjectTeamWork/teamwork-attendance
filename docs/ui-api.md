@@ -197,6 +197,15 @@ A group is a course section. All routes are under `/api/v1/messages`.
 | `GET /messages/contacts` | People the caller may write to and, for professors, their groups |
 | `GET /messages/unread-count` | Unread messages for the caller |
 
+`POST /messages` also accepts `newsletter_ids`. Subscriptions use these routes:
+
+| Route | Purpose |
+|---|---|
+| `GET /subscriptions` | Students: every group and newsletter, with `subscribed` and, for groups, `member` |
+| `PUT` or `DELETE /subscriptions/groups/{id}` | Students: follow or stop following a group's posts, without enrolling |
+| `PUT` or `DELETE /subscriptions/newsletters/{id}` | Students: subscribe to or leave a newsletter |
+| `GET` or `POST /newsletters`, `DELETE /newsletters/{id}` | Professors: manage their own newsletters |
+
 Writing to someone outside your classes returns 403, a conversation you are not
 part of returns 404, and sending more than `MESSAGE_LIMIT_PER_USER` messages in
 `MESSAGE_WINDOW_MINUTES` returns 429.
