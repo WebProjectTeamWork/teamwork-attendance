@@ -201,6 +201,28 @@ Writing to someone outside your classes returns 403, a conversation you are not
 part of returns 404, and sending more than `MESSAGE_LIMIT_PER_USER` messages in
 `MESSAGE_WINDOW_MINUTES` returns 429.
 
+## Votes
+
+A professor lets one or more of their groups vote on a date, for example for an
+exam. All routes are under `/api/v1/votes`.
+
+| Route | Purpose |
+|---|---|
+| `POST /votes` | Start a vote (professors): `title`, optional `description`, `section_ids`, 2 to 20 future `options` (`starts_at`, optional `note`), `allow_multiple`, `anonymous`, `results_visibility` (`live`, `after_close`, `professor_only`) |
+| `GET /votes` | Professors: the votes they started. Students: the votes of their groups |
+| `GET /votes/{id}` | One vote. Professors get totals, `voted` of `eligible`, `not_voted` and, unless anonymous, the `voters` of each date |
+| `PUT /votes/{id}/choice` | Students: `option_ids` replaces their previous choice; exactly one unless `allow_multiple` |
+| `POST /votes/{id}/close` | Professors: set the date with `option_id`, or leave it out for the most voted date (the earliest on a tie). Students are notified |
+| `DELETE /votes/{id}` | Professors: delete the vote; students are notified if it was still open |
+
+Students see `votes` on each option only when `results_visible` is true: after
+they voted (`live`), after the vote closed (`after_close`), or never
+(`professor_only`). `chosen_option_id` is always shown once the vote is closed.
+A student who is in two of the groups votes once. Students outside the groups,
+and other professors, get 404; choosing on a closed vote returns 409.
+Anonymous votes hide who picked what in the API, but the database still links
+each choice to its student so that students can change their choice.
+
 ## UI security rules
 
 - Keep access tokens in a secure, HTTP-only cookie for a browser application;

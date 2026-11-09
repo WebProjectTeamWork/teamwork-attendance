@@ -104,7 +104,9 @@ in an audit log.
 `attendance_records`, `attendance_code_attempts`, and `audit_logs`.
 `absence_requests` and `notifications` support excused absences and
 professor-cancellation alerts. `messages` and `message_recipients` hold the
-newsletter; group posts are expanded into one recipient row per student.
+newsletter; group posts are expanded into one recipient row per student. `votes`,
+`vote_options`, `vote_groups`, and `vote_choices` hold the date votes; a choice
+row is one date a student picked.
 
 The PlantUML files in this directory can be rendered with any PlantUML-compatible
 editor or extension.

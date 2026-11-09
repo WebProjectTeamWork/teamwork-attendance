@@ -176,6 +176,67 @@ class MessageRecipient(Base):
     read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
+class VoteVisibility(StrEnum):
+    """When students see the totals of a vote."""
+
+    LIVE = "live"  # once they have voted
+    AFTER_CLOSE = "after_close"
+    PROFESSOR_ONLY = "professor_only"
+
+
+class VoteStatus(StrEnum):
+    OPEN = "open"
+    CLOSED = "closed"
+
+
+class Vote(Base):
+    """A professor asks one or more classes to pick a date, for example for an exam."""
+
+    __tablename__ = "votes"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    professor_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    title: Mapped[str] = mapped_column(String(200))
+    description: Mapped[str | None] = mapped_column(Text)
+    allow_multiple: Mapped[bool] = mapped_column(Boolean, default=False)
+    anonymous: Mapped[bool] = mapped_column(Boolean, default=False)
+    results_visibility: Mapped[str] = mapped_column(String(20), default=VoteVisibility.AFTER_CLOSE)
+    status: Mapped[str] = mapped_column(String(20), default=VoteStatus.OPEN)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
+    closed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # The date the professor set when closing the vote.
+    chosen_option_id: Mapped[str | None] = mapped_column(String(36))
+
+
+class VoteOption(Base):
+    __tablename__ = "vote_options"
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    vote_id: Mapped[str] = mapped_column(ForeignKey("votes.id"), index=True)
+    starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    note: Mapped[str | None] = mapped_column(String(200))
+
+
+class VoteGroup(Base):
+    """A class whose students may vote."""
+
+    __tablename__ = "vote_groups"
+    __table_args__ = (UniqueConstraint("vote_id", "section_id"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    vote_id: Mapped[str] = mapped_column(ForeignKey("votes.id"), index=True)
+    section_id: Mapped[str] = mapped_column(ForeignKey("course_sections.id"), index=True)
+
+
+class VoteChoice(Base):
+    """One option a student picked. Kept per student, also for anonymous votes, so they can change it."""
+
+    __tablename__ = "vote_choices"
+    __table_args__ = (UniqueConstraint("option_id", "student_id"),)
+    id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))
+    vote_id: Mapped[str] = mapped_column(ForeignKey("votes.id"), index=True)
+    option_id: Mapped[str] = mapped_column(ForeignKey("vote_options.id"), index=True)
+    student_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
+
+
 class LoginAttempt(Base):
     __tablename__ = "login_attempts"
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid4()))

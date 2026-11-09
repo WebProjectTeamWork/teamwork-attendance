@@ -57,6 +57,21 @@ in yellow, and the button shows how many messages you haven't read.
   **Reply to** under a student's message to answer only that student.
 - Press Ctrl+Enter to send a reply.
 
+## Votes
+
+Use a vote to let your groups pick a date, for example for an exam or a make-up lab.
+
+- **Professors** select **Votes** in the sidebar and **New vote**. Tick the
+  groups, add two or more dates (each with an optional note such as the room)
+  and choose: one date per student or every date that works, names or anonymous,
+  and when students see the results. Students of the groups get a notification.
+- The vote page shows the totals, who picked each date (unless anonymous) and who
+  hasn't answered. **Close vote and set date** preselects the most voted date;
+  pick another one if you want. Everyone in the groups is told the date.
+- **Students** find open votes under **Votes** on their page. Pick a date and
+  select **Save my choice**; you can change it until the vote closes. Decided
+  votes show the date that was set.
+
 ## Important rules
 
 - Each student can confirm attendance only once per session.

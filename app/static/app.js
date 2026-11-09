@@ -511,6 +511,7 @@ async function signOut() {
   state.sections = [];
   state.sectionId = null;
   state.newsletter = false;
+  state.votes = false;
   closeOverlays();
   renderAuth("You're signed out.");
 }
@@ -616,6 +617,7 @@ async function renderStudent() {
   }
   const liveHost = el("div");
   const statsHost = el("div", { class: "section-block" });
+  const votesHost = el("div", { class: "section-block" });
   const absenceHost = el("div", { class: "section-block" });
 
   mount(
@@ -626,6 +628,7 @@ async function renderStudent() {
       el("div", { class: "page-head" }, el("div", {}, el("h1", {}, `Hi, ${state.user.first_name}`), el("p", { class: "muted" }, "Mark yourself present when your professor opens attendance."))),
       liveHost,
       statsHost,
+      votesHost,
       absenceHost,
     ),
   );
@@ -745,7 +748,11 @@ async function renderStudent() {
   await loadLive();
   await loadStats();
   if (state.pendingQr) confirmFromQr();
-  every(STUDENT_POLL_MS, () => loadLive().catch(() => {}));
+  const refreshVotes = studentVotes(votesHost);
+  every(STUDENT_POLL_MS, () => {
+    loadLive().catch(() => {});
+    refreshVotes();
+  });
   every(1000, () => document.querySelectorAll("[data-expires]").forEach((node) => (node.textContent = minutesLeftText(node.dataset.expires))));
 }
 
@@ -1057,10 +1064,11 @@ async function renderProfessor() {
     await messagesPage(main);
     return;
   }
-  if (state.allStudents) {
+  if (state.allStudents || state.votes) {
     const main = el("main", { class: "main" });
     mount(topbar(), el("div", { class: "layout" }, professorSidebar(), main));
-    allStudentsPage(main);
+    if (state.votes) votesPage(main);
+    else allStudentsPage(main);
     return;
   }
   if (!state.sectionId || !state.sections.some((section) => section.id === state.sectionId)) {
@@ -1093,6 +1101,7 @@ function professorSidebar() {
     state.sectionId = section.id;
     state.tab = "students";
     state.newsletter = false;
+    state.votes = false;
     toast(`Created ${name}. Add your students next.`);
     renderProfessor();
   }
@@ -1108,10 +1117,25 @@ function professorSidebar() {
         onclick: () => {
           state.allStudents = true;
           state.newsletter = false;
+          state.votes = false;
           renderProfessor();
         },
       },
       "All students",
+    ),
+    el(
+      "button",
+      {
+        class: "all-students",
+        "aria-current": String(Boolean(state.votes) && !state.newsletter),
+        onclick: () => {
+          state.votes = true;
+          state.allStudents = false;
+          state.newsletter = false;
+          renderProfessor();
+        },
+      },
+      "Votes",
     ),
     el(
       "ul",
@@ -1129,6 +1153,7 @@ function professorSidebar() {
                 state.tab = "sessions";
                 state.allStudents = false;
                 state.newsletter = false;
+                state.votes = false;
                 renderProfessor();
               },
             },
