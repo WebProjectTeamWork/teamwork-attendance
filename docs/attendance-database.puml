@@ -177,6 +177,45 @@ entity message_recipients {
   read_at : timestamptz
 }
 
+entity votes {
+  * id : uuid
+  --
+  professor_id : uuid <<FK>>
+  title : varchar
+  description : text
+  allow_multiple : boolean
+  anonymous : boolean
+  results_visibility : varchar
+  status : varchar
+  created_at : timestamptz
+  closed_at : timestamptz
+  chosen_option_id : uuid
+}
+
+entity vote_options {
+  * id : uuid
+  --
+  vote_id : uuid <<FK>>
+  starts_at : timestamptz
+  note : varchar
+}
+
+entity vote_groups {
+  * id : uuid
+  --
+  vote_id : uuid <<FK>>
+  section_id : uuid <<FK>>
+}
+
+entity vote_choices {
+  * id : uuid
+  --
+  vote_id : uuid <<FK>>
+  option_id : uuid <<FK>>
+  student_id : uuid <<FK>>
+  created_at : timestamptz
+}
+
 users ||--o| student_profiles
 users ||--o| professor_profiles
 departments ||--o{ student_profiles
@@ -201,6 +240,12 @@ users ||--o{ notifications : receives
 users ||--o{ messages : sends
 messages ||--o{ message_recipients
 users ||--o{ message_recipients : receives
+users ||--o{ votes : starts
+votes ||--o{ vote_options
+votes ||--o{ vote_groups
+course_sections ||--o{ vote_groups
+vote_options ||--o{ vote_choices
+users ||--o{ vote_choices : picks
 
 note right of attendance_sessions
   Store only a hash of the

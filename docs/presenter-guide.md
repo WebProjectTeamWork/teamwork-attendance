@@ -167,6 +167,11 @@ endpoint enforces.
 | POST | `/notifications/read` | any logged-in user | Mark all notifications read |
 | GET | `/students/me/statistics` | student | Own attendance percentage and per-session status |
 | GET | `/sections/{section_id}/statistics` | professor | Class totals and per-session confirmation counts |
+| POST | `/votes` | professor | Start a vote on a date for one or more of the professor's sections. Notifies their students |
+| GET | `/votes`, `/votes/{vote_id}` | any logged-in user | Professor: own votes with totals. Student: votes of their sections, totals when the vote allows |
+| PUT | `/votes/{vote_id}/choice` | student | Pick a date (or several, if allowed); replaces the previous choice while the vote is open |
+| POST | `/votes/{vote_id}/close` | professor | Close the vote and set the date (default: most votes, earliest on a tie). Notifies the students |
+| DELETE | `/votes/{vote_id}` | professor | Delete a vote; students are told if it was open |
 
 Interactive docs are at `/docs` (Swagger UI) and `/redoc`.
 
