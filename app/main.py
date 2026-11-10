@@ -5,11 +5,12 @@ from hmac import compare_digest
 from math import asin, cos, radians, sin, sqrt
 from pathlib import Path
 from typing import NoReturn
+from urllib.parse import quote
 from uuid import uuid4
 
 import jwt
 from fastapi import Depends, FastAPI, File, Header, HTTPException, Request, Response, UploadFile, status
-from fastapi.responses import FileResponse
+from fastapi.responses import JSONResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import func, or_, select
@@ -27,6 +28,7 @@ from .models import (
     AttendanceStatus,
     AttendanceSession,
     AbsenceRequest,
+    AttachmentFile,
     AuditLog,
     CodeAttempt,
     CourseSection,
@@ -114,14 +116,30 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     yield
 
 
+# The interactive API docs list every endpoint; a public production site does not publish them.
+_public_docs = get_settings().app_env != "production"
 app = FastAPI(
     title="Attendance API",
     description="Secure code/QR attendance for professors and students.",
     version="0.1.0",
-    docs_url="/docs",
-    redoc_url="/redoc",
+    docs_url="/docs" if _public_docs else None,
+    redoc_url="/redoc" if _public_docs else None,
+    openapi_url="/openapi.json" if _public_docs else None,
     lifespan=lifespan,
 )
+
+# Room for multipart headers around the largest allowed file.
+BODY_LIMIT_BYTES = get_settings().max_upload_bytes + 64 * 1024
+
+
+@app.middleware("http")
+async def limit_body_size(request: Request, call_next):
+    """Refuse oversized uploads before the body is read (FastAPI parses forms before checking who is logged in)."""
+    length = request.headers.get("content-length")
+    if length is not None and (not length.isdigit() or int(length) > BODY_LIMIT_BYTES):
+        limit_mb = get_settings().max_upload_bytes // (1024 * 1024)
+        return JSONResponse({"detail": f"File is too large. The limit is {limit_mb} MB."}, status_code=413)
+    return await call_next(request)
 
 
 def distance_meters(latitude_a: float, longitude_a: float, latitude_b: float, longitude_b: float) -> float:
@@ -133,7 +151,8 @@ def distance_meters(latitude_a: float, longitude_a: float, latitude_b: float, lo
 
 
 def client_ip(request: Request) -> str:
-    return request.client.host if request.client else "unknown"
+    # Behind a proxy this comes from X-Forwarded-For, which a client can fill in; keep it within the column size.
+    return (request.client.host if request.client else "unknown")[:45]
 
 
 def ensure_open(session: AttendanceSession) -> None:
@@ -143,15 +162,20 @@ def ensure_open(session: AttendanceSession) -> None:
         raise HTTPException(status_code=410, detail="Attendance session has expired")
 
 
-def attempt_limit_reached(db: Session, session: AttendanceSession, student_id: str, ip: str, device_id: str | None) -> bool:
-    """True when failed attempts for this student, IP, or device exceed the window limit in this session."""
+def attempt_limit_reached(
+    db: Session, session: AttendanceSession, student_id: str, ip: str, device_id: str | None, shared: bool = True
+) -> bool:
+    """True when failed attempts for this student (and, if shared, this IP or device) exceed the window limit.
+
+    IPs and devices can be shared by a whole classroom (one Wi-Fi NAT) or spoofed, so callers apply the shared
+    limits only to wrong codes: other people's failures must never block a student who has the right code.
+    """
     settings = get_settings()
     window_start = datetime.now(timezone.utc) - timedelta(minutes=settings.attempt_window_minutes)
-    scopes = [
-        (CodeAttempt.student_id == student_id, settings.attempt_limit_per_student),
-        (CodeAttempt.ip_address == ip, settings.attempt_limit_per_ip),
-    ]
-    if device_id:
+    scopes = [(CodeAttempt.student_id == student_id, settings.attempt_limit_per_student)]
+    if shared:
+        scopes.append((CodeAttempt.ip_address == ip, settings.attempt_limit_per_ip))
+    if shared and device_id:
         scopes.append((CodeAttempt.device_id == device_id, settings.attempt_limit_per_device))
     for condition, limit in scopes:
         failures = db.scalar(
@@ -513,7 +537,7 @@ def confirm_attendance(
     if datetime.now(timezone.utc) >= as_utc(session.expires_at):
         raise HTTPException(status_code=410, detail="Attendance session has expired")
     ip = client_ip(request)
-    if attempt_limit_reached(db, session, student.id, ip, device_id):
+    if attempt_limit_reached(db, session, student.id, ip, device_id, shared=False):
         reject_attempt(
             db, session, student.id, "rate_limited", ip, device_id,
             429, "Too many failed attempts. Try again later.",
@@ -530,6 +554,11 @@ def confirm_attendance(
     code_ok = bool(payload.code and code_matches(payload.code, session.code_hash))
     qr_nonce = qr_nonce_for(payload.qr_token, session) if payload.qr_token else None
     if not code_ok and qr_nonce is None:
+        if attempt_limit_reached(db, session, student.id, ip, device_id):
+            reject_attempt(
+                db, session, student.id, "rate_limited", ip, device_id,
+                429, "Too many failed attempts. Try again later.",
+            )
         reject_attempt(db, session, student.id, "invalid", ip, device_id, 400, "Invalid attendance code or QR")
     # The whole class scans the same QR from the board, so a token works for every student until it expires.
     method = "qr" if qr_nonce else "code"
@@ -742,12 +771,6 @@ ATTACHMENT_SIGNATURES = {
 }
 
 
-def upload_dir() -> Path:
-    path = Path(get_settings().upload_dir)
-    path.mkdir(parents=True, exist_ok=True)
-    return path
-
-
 @app.post("/api/v1/absence-requests/{request_id}/attachment", response_model=AbsenceRequestResponse, tags=["absence"])
 async def upload_absence_attachment(
     request_id: str,
@@ -770,9 +793,11 @@ async def upload_absence_attachment(
     if content_type is None:
         raise HTTPException(status_code=415, detail="Attach a PDF, PNG, or JPEG file")
     stored_name = uuid4().hex
-    (upload_dir() / stored_name).write_bytes(content)
+    db.add(AttachmentFile(id=stored_name, content=content))
     if absence.attachment_path:
-        (upload_dir() / absence.attachment_path).unlink(missing_ok=True)
+        old = db.get(AttachmentFile, absence.attachment_path)
+        if old is not None:
+            db.delete(old)
     absence.attachment_path = stored_name
     absence.attachment_name = Path(file.filename or "attachment").name[:255]
     absence.attachment_type = content_type
@@ -786,7 +811,7 @@ def download_absence_attachment(
     request_id: str,
     user: User = Depends(current_user),
     db: Session = Depends(get_db),
-) -> FileResponse:
+) -> Response:
     """Only the student who sent the request and the class's professor can open the file."""
     absence = db.get(AbsenceRequest, request_id)
     section = db.get(CourseSection, absence.section_id) if absence else None
@@ -795,15 +820,24 @@ def download_absence_attachment(
     )
     if not allowed or not absence.attachment_path:
         raise HTTPException(status_code=404, detail="Attachment not found")
-    path = upload_dir() / absence.attachment_path
-    if not path.is_file():
-        raise HTTPException(status_code=404, detail="Attachment not found")
-    return FileResponse(
-        path,
+    stored = db.get(AttachmentFile, absence.attachment_path)
+    if stored is not None:
+        content = stored.content
+    else:
+        # Attachments uploaded before files moved into the database are still on local disk.
+        legacy = Path(get_settings().upload_dir) / absence.attachment_path
+        if not legacy.is_file():
+            raise HTTPException(status_code=404, detail="Attachment not found")
+        content = legacy.read_bytes()
+    filename = quote(absence.attachment_name or "attachment")
+    return Response(
+        content,
         media_type=absence.attachment_type,
-        filename=absence.attachment_name,
-        content_disposition_type="inline",
-        headers={"X-Content-Type-Options": "nosniff", "Cache-Control": "private, no-store"},
+        headers={
+            "Content-Disposition": f"inline; filename*=utf-8''{filename}",
+            "X-Content-Type-Options": "nosniff",
+            "Cache-Control": "private, no-store",
+        },
     )
 
 

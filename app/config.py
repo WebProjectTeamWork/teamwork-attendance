@@ -19,8 +19,13 @@ class Settings(BaseSettings):
     professor_signup_code: str = ""
     message_window_minutes: int = 10
     message_limit_per_user: int = 30
+    # Only read for attachments uploaded before files were stored in the database.
     upload_dir: str = "./uploads"
     max_upload_bytes: int = 5 * 1024 * 1024
+    # Sheet scans: longest image side given to OCR and onnxruntime threads (0 = all cores). Detection memory
+    # grows with the pixel count: about 600 MB peak at 2000, about 400 MB at 1400 (for hosts with 512 MB RAM).
+    ocr_max_side: int = 2000
+    ocr_threads: int = 0
     # Dates in notification texts are written in this time zone.
     timezone: str = "Europe/Bucharest"
     # "production" refuses to start with the built-in development secrets.

@@ -2,7 +2,7 @@ from datetime import date, datetime, timezone
 from enum import StrEnum
 from uuid import uuid4
 
-from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint
+from sqlalchemy import Boolean, Date, DateTime, Float, ForeignKey, Integer, LargeBinary, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
@@ -136,6 +136,14 @@ class AbsenceRequest(Base):
     attachment_type: Mapped[str | None] = mapped_column(String(50))
     status: Mapped[str] = mapped_column(String(20), default="pending")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=now_utc)
+
+
+class AttachmentFile(Base):
+    """The bytes of an uploaded absence attachment, kept in the database so hosts without a persistent disk lose nothing."""
+
+    __tablename__ = "attachment_files"
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    content: Mapped[bytes] = mapped_column(LargeBinary)
 
 
 class Notification(Base):

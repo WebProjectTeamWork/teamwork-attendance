@@ -214,7 +214,8 @@ def test_failures_below_the_limit_do_not_lock_out(client, professor, section, st
     assert confirm(client, student, body["id"], code=body["code"]).status_code == 200
 
 
-def test_ip_limit_blocks_many_students_from_one_address(client, professor, section, student, other_student, monkeypatch):
+def test_ip_limit_blocks_guessing_but_not_a_correct_code(client, professor, section, student, other_student, monkeypatch):
+    """A whole classroom shares one Wi-Fi address, so others' failures must not lock out a student with the code."""
     settings = get_settings()
     monkeypatch.setattr(settings, "attempt_limit_per_ip", 2)
     body = open_session(client, professor, section)
@@ -223,15 +224,19 @@ def test_ip_limit_blocks_many_students_from_one_address(client, professor, secti
 
     assert confirm(client, student, body["id"], code="WRONGCODE12").status_code == 400
     assert confirm(client, other_student, body["id"], code="WRONGCODE12").status_code == 400
-    assert confirm(client, third, body["id"], code=body["code"]).status_code == 429
+    assert confirm(client, third, body["id"], code="WRONGCODE12").status_code == 429
+    assert confirm(client, third, body["id"], code=body["code"]).status_code == 200
 
 
-def test_device_limit_blocks_rotating_accounts_on_one_device(client, professor, section, student, other_student, monkeypatch):
+def test_device_limit_blocks_guessing_from_rotating_accounts(client, professor, section, student, other_student, monkeypatch):
     monkeypatch.setattr(get_settings(), "attempt_limit_per_device", 2)
     body = open_session(client, professor, section)
     assert confirm(client, student, body["id"], device="dev-1", code="WRONGCODE12").status_code == 400
     assert confirm(client, other_student, body["id"], device="dev-1", code="WRONGCODE12").status_code == 400
-    assert confirm(client, other_student, body["id"], device="dev-1", code=body["code"]).status_code == 429
+    assert confirm(client, other_student, body["id"], device="dev-1", code="WRONGCODE12").status_code == 429
+    # One device still confirms for only one student (the device-conflict check), so a right code is not a bypass.
+    assert confirm(client, other_student, body["id"], device="dev-1", code=body["code"]).status_code == 200
+    assert confirm(client, student, body["id"], device="dev-1", code=body["code"]).status_code == 409
 
 
 def test_lockout_window_expires(client, professor, section, student, db):
@@ -292,3 +297,12 @@ def test_blank_or_too_short_code_fails_validation(client, professor, section, st
     body = open_session(client, professor, section)
     response = confirm(client, student, body["id"], code=bad_code)
     assert response.status_code == 422
+
+
+def test_oversized_body_is_refused_before_it_is_read(client):
+    response = client.post(
+        "/api/v1/absence-requests/x/attachment",
+        content=b"x",
+        headers={"Content-Length": str(50 * 1024 * 1024), "Content-Type": "multipart/form-data; boundary=b"},
+    )
+    assert response.status_code == 413

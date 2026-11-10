@@ -279,7 +279,7 @@ as `VARCHAR(36)`.
 | attendance_session_id | varchar(36) | FK → attendance_sessions.id, optional |
 | reason | text | 10–2000 characters |
 | attachment_url | text | Optional, must be `http(s)`. The UI uses uploads instead |
-| attachment_path | varchar(64) | Random file name in `UPLOAD_DIR` for an uploaded file |
+| attachment_path | varchar(64) | Random id of the uploaded file in `attachment_files` |
 | attachment_name | varchar(255) | Original file name, shown to the user |
 | attachment_type | varchar(50) | Detected from the file's bytes, not its name |
 | status | varchar(20) | Default `pending`. Then `approved` or `rejected` |
@@ -425,7 +425,7 @@ than being asked about them.
 4. **No 2FA, refresh tokens, or token revocation.**
 5. **No migrations.** Schema changes depend on `create_all` and the
    `ensure_additive_schema()` helper, which only adds columns.
-6. **Uploads are stored on local disk** (`UPLOAD_DIR`) without virus scanning
+6. **Uploads are stored in the database** (`attachment_files` table) without virus scanning
    or a retention policy.
 7. **An absence request for a class that hasn't happened yet** cannot excuse it
    automatically. The professor sets the student to Excused in that session's

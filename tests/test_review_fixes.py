@@ -1,12 +1,14 @@
 """Fixes for the problems listed in the external review (PROBLEMS.md / plan.md)."""
 
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 import pytest
 
 from app.config import get_settings
 from app.main import check_production_settings
-from app.models import AttendanceSession, Enrollment
+from app.db import SessionLocal
+from app.models import AttachmentFile, AttendanceSession, Enrollment
 from tests.helpers import PASSWORD, confirm, enroll, make_actor, open_session
 
 
@@ -295,6 +297,17 @@ def test_student_uploads_pdf_and_professor_opens_it(client, professor, student, 
     assert download.content == PDF
     assert download.headers["content-type"] == "application/pdf"
     assert download.headers["x-content-type-options"] == "nosniff"
+
+
+def test_attachments_live_in_the_database_and_replacing_one_removes_the_old(client, student, section):
+    """Free hosts wipe local disk on restart, so the file bytes must be stored in the database."""
+    request = make_request(client, student, section)
+    upload(client, student, request["id"], PDF)
+    upload(client, student, request["id"], PDF + b"v2")
+    with SessionLocal() as db:
+        stored = db.query(AttachmentFile).all()
+    assert [row.content for row in stored] == [PDF + b"v2"]
+    assert not any(Path(get_settings().upload_dir).glob("*"))
 
 
 def test_upload_rejects_files_that_are_not_pdf_or_image(client, student, section):

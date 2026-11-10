@@ -13,6 +13,8 @@ from functools import lru_cache
 from PIL import Image, ImageDraw, ImageFont
 from rapidfuzz import fuzz
 
+from .config import get_settings
+
 # token_sort_ratio scores (0-100). Typos cost a few points, so a clean-enough match is accepted outright
 # and a weaker one is shown to the professor to confirm.
 ACCEPT_SCORE = 80
@@ -97,21 +99,38 @@ def _ocr_engine():
     # The first call loads the models (a few seconds); later scans reuse the engine.
     from rapidocr import RapidOCR
 
-    return RapidOCR()
+    threads = get_settings().ocr_threads
+    if threads <= 0:
+        return RapidOCR()
+    return RapidOCR(
+        params={
+            "EngineConfig.onnxruntime.intra_op_num_threads": threads,
+            "EngineConfig.onnxruntime.inter_op_num_threads": threads,
+        }
+    )
 
 
-def _upscaled_png(image_bytes: bytes) -> bytes:
-    """Handwriting is found much more reliably at 2x; the coordinates are only compared with each other."""
+def _upscaled_png(image_bytes: bytes, max_side: int) -> bytes:
+    """Handwriting is found much more reliably at 2x; the coordinates are only compared with each other.
+
+    The longest side is capped at max_side, because text detection's memory grows with the pixel count.
+    """
     image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-    if max(image.size) >= 2000:
-        return image_bytes
+    longest = max(image.size)
+    if longest >= max_side:
+        if max_side >= 2000:
+            return image_bytes  # RapidOCR shrinks it to 2000 itself.
+        scale = max_side / longest
+    else:
+        scale = min(2.0, max_side / longest)
     buffer = io.BytesIO()
-    image.resize((image.width * 2, image.height * 2), Image.LANCZOS).save(buffer, format="PNG")
+    size = (round(image.width * scale), round(image.height * scale))
+    image.resize(size, Image.LANCZOS).save(buffer, format="PNG")
     return buffer.getvalue()
 
 
 def read_boxes(image_bytes: bytes) -> list[OcrBox]:
-    result = _ocr_engine()(_upscaled_png(image_bytes), text_score=0.3)
+    result = _ocr_engine()(_upscaled_png(image_bytes, get_settings().ocr_max_side), text_score=0.3)
     if result is None or result.txts is None:
         return []
     boxes = []
@@ -352,7 +371,7 @@ def annotate(image_bytes: bytes, confirmed: list, flagged: list[dict]) -> bytes:
 
     Coordinates match read_boxes, which reads the same upscaled image.
     """
-    image = Image.open(io.BytesIO(_upscaled_png(image_bytes))).convert("RGB")
+    image = Image.open(io.BytesIO(_upscaled_png(image_bytes, get_settings().ocr_max_side))).convert("RGB")
     draw = ImageDraw.Draw(image)
     width = max(2, image.width // 400)
     font = _label_font(image.width)
