@@ -1,0 +1,5192 @@
+[
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 59,
+      "row": 15
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\attendance_scan.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import base64\r\nimport io\r\nfrom datetime import date, datetime, time, timezone\r\n\r\nfrom fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile\r\nfrom PIL import Image\r\nfrom pydantic import BaseModel, Field\r\nfrom sqlalchemy import select\r\nfrom sqlalchemy.orm import Session\r\n\r\nfrom .config import get_settings\r\nfrom .db import get_db\r\nfrom .models import (\r\n    AttendanceRecord,\r\n    AttendanceSession,\r\n    AttendanceStatus,\r\n    AuditLog,\r\n    CourseSection,\r\n    Enrollment,\r\n    SessionStatus,\r\n    User,\r\n)\r\nfrom .recognition import analyse, annotate, read_boxes, roster_student\r\nfrom .security import digest_code, make_code, require_role\r\n\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 17
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 1
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 1,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 70
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\attendance_scan.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 70
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 70,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 70
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\attendance_scan.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 70
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 70,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 71
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\attendance_scan.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 71
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 71,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 33,
+      "row": 89
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\attendance_scan.py",
+    "fix": null,
+    "location": {
+      "column": 24,
+      "row": 89
+    },
+    "message": "Do not perform function call `File` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 89,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 51,
+      "row": 90
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\attendance_scan.py",
+    "fix": null,
+    "location": {
+      "column": 33,
+      "row": 90
+    },
+    "message": "Do not perform function call `Form` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 90,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 92
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\attendance_scan.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 92
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 92,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 92
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\attendance_scan.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 92
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 92,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 93
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\attendance_scan.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 93
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 93,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 126
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\attendance_scan.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 126
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 126,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 126
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\attendance_scan.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 126
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 126,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 127
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\attendance_scan.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 127
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 127,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 108,
+      "row": 140
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\attendance_scan.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import date, datetime, time, timezone, UTC",
+          "end_location": {
+            "column": 52,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 108,
+            "row": 140
+          },
+          "location": {
+            "column": 96,
+            "row": 140
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 96,
+      "row": 140
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 140,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 2,
+      "row": 81
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from collections.abc import AsyncIterator\r\nfrom contextlib import asynccontextmanager\r\nfrom datetime import date, datetime, timedelta, timezone\r\nfrom hmac import compare_digest\r\nfrom math import asin, cos, radians, sin, sqrt\r\nfrom pathlib import Path\r\nfrom typing import NoReturn\r\nfrom uuid import uuid4\r\n\r\nimport jwt\r\nfrom fastapi import (\r\n    Depends,\r\n    FastAPI,\r\n    File,\r\n    Header,\r\n    HTTPException,\r\n    Request,\r\n    Response,\r\n    UploadFile,\r\n    status,\r\n)\r\nfrom fastapi.responses import FileResponse\r\nfrom fastapi.security import OAuth2PasswordRequestForm\r\nfrom fastapi.staticfiles import StaticFiles\r\nfrom sqlalchemy import func, or_, select\r\nfrom sqlalchemy.exc import IntegrityError\r\nfrom sqlalchemy.orm import Session\r\n\r\nfrom .attendance_scan import router as attendance_scan_router\r\nfrom .attendance_scan import students_router\r\nfrom .config import get_settings\r\nfrom .db import Base, engine, ensure_additive_schema, get_db\r\nfrom .models import (\r\n    ATTENDED_STATUSES,\r\n    AbsenceRequest,\r\n    AttendanceRecord,\r\n    AttendanceSession,\r\n    AttendanceStatus,\r\n    AuditLog,\r\n    CodeAttempt,\r\n    CourseSection,\r\n    Enrollment,\r\n    LoginAttempt,\r\n    Notification,\r\n    SessionStatus,\r\n    User,\r\n    as_utc,\r\n)\r\nfrom .newsletter import router as newsletter_router\r\nfrom .newsletter import subscriptions_router\r\nfrom .schemas import (\r\n    AbsenceRequestCreate,\r\n    AbsenceRequestResponse,\r\n    AbsenceReview,\r\n    AttendanceConfirmRequest,\r\n    AttendanceOverride,\r\n    AttendanceRecordSummary,\r\n    AttendanceResponse,\r\n    AttendanceSessionCreate,\r\n    AttendanceSessionResponse,\r\n    ClassStatsResponse,\r\n    CodeRotationResponse,\r\n    EnrollmentCreate,\r\n    EnrollmentResponse,\r\n    NotificationResponse,\r\n    OpenSessionSummary,\r\n    QrTokenResponse,\r\n    RosterEntry,\r\n    SectionCreate,\r\n    SectionResponse,\r\n    SectionSummary,\r\n    SessionSummary,\r\n    StudentStatsResponse,\r\n    StudentSummary,\r\n    TokenResponse,\r\n    UserCreate,\r\n    UserResponse,\r\n)\r\nfrom .security import (\r\n    SESSION_COOKIE,\r\n    code_matches,\r\n    create_token,\r\n    current_user,\r\n    digest_code,\r\n    hash_password,\r\n    make_code,\r\n    make_qr_token,\r\n    require_role,\r\n    verify_password,\r\n)\r\nfrom .votes import router as votes_router\r\n\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 83
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 1
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 1,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 26,
+      "row": 3
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timedelta, timezone",
+          "end_location": {
+            "column": 57,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        }
+      ],
+      "message": "Remove unused import: `datetime.date`"
+    },
+    "location": {
+      "column": 22,
+      "row": 3
+    },
+    "message": "`datetime.date` imported but unused",
+    "name": "unused-import",
+    "noqa_row": 3,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 105,
+      "row": 11
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from fastapi import Depends, FastAPI, File, Header, HTTPException, Request, Response, UploadFile",
+          "end_location": {
+            "column": 105,
+            "row": 11
+          },
+          "location": {
+            "column": 1,
+            "row": 11
+          }
+        }
+      ],
+      "message": "Remove unused import: `fastapi.status`"
+    },
+    "location": {
+      "column": 99,
+      "row": 11
+    },
+    "message": "`fastapi.status` imported but unused",
+    "name": "unused-import",
+    "noqa_row": 11,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 33,
+      "row": 142
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import date, datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 57,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 33,
+            "row": 142
+          },
+          "location": {
+            "column": 21,
+            "row": 142
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 21,
+      "row": 142
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 142,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 45,
+      "row": 149
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import date, datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 57,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 45,
+            "row": 149
+          },
+          "location": {
+            "column": 33,
+            "row": 149
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 33,
+      "row": 149
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 149,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 74,
+      "row": 208
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import date, datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 57,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 74,
+            "row": 208
+          },
+          "location": {
+            "column": 62,
+            "row": 208
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 62,
+      "row": 208
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 208,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 64,
+      "row": 251
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 49,
+      "row": 251
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 251,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 45,
+      "row": 275
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import date, datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 57,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 45,
+            "row": 275
+          },
+          "location": {
+            "column": 33,
+            "row": 275
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 33,
+      "row": 275
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 275,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 54,
+      "row": 295
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 295
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 295,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 85,
+      "row": 295
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 70,
+      "row": 295
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 295,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 48,
+      "row": 303
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 39,
+      "row": 303
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 303,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 304
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 304
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 304,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 42,
+      "row": 325
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 21,
+      "row": 325
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 325,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 332
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 332
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 332,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 332
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 332
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 332,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 333
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 333
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 333,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 351
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 351
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 351,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 351
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 351
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 351,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 352
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 352
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 352,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 384
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 384
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 384,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 384
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 384
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 384,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 385
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 385
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 385,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 52,
+      "row": 399
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import date, datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 57,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 52,
+            "row": 399
+          },
+          "location": {
+            "column": 40,
+            "row": 399
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 40,
+      "row": 399
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 399,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 412
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 412
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 412,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 412
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 412
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 412,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 413
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 413
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 413,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 43,
+      "row": 422
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import date, datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 57,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 43,
+            "row": 422
+          },
+          "location": {
+            "column": 31,
+            "row": 422
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 31,
+      "row": 422
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 422,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 47,
+      "row": 426
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import date, datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 57,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 47,
+            "row": 426
+          },
+          "location": {
+            "column": 35,
+            "row": 426
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 35,
+      "row": 426
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 426,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 455
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 455
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 455,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 455
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 455
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 455,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 456
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 456
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 456,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 474
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 474
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 474,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 474
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 474
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 474,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 475
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 475
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 475,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 53,
+      "row": 504
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 21,
+      "row": 504
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 504,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 52,
+      "row": 504
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 504
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 504,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 505
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 505
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 505,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 33,
+      "row": 513
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import date, datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 57,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 33,
+            "row": 513
+          },
+          "location": {
+            "column": 21,
+            "row": 513
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 21,
+      "row": 513
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 513,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 36,
+      "row": 558
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import date, datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 57,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 36,
+            "row": 558
+          },
+          "location": {
+            "column": 24,
+            "row": 558
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 24,
+      "row": 558
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 558,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 615
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 615
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 615,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 615
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 615
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 615,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 616
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 616
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 616,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 53,
+      "row": 643
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 21,
+      "row": 643
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 643,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 52,
+      "row": 643
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 643
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 643,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 644
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 644
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 644,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 679
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 679
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 679,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 679
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 679
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 679,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 680
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 680
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 680,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 695
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 695
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 695,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 695
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 695
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 695,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 696
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 696
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 696,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 33,
+      "row": 754
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 24,
+      "row": 754
+    },
+    "message": "Do not perform function call `File` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 754,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 53,
+      "row": 755
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 21,
+      "row": 755
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 755,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 52,
+      "row": 755
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 755
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 755,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 756
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 756
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 756,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 39,
+      "row": 787
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 18,
+      "row": 787
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 787,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 788
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 788
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 788,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 39,
+      "row": 812
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 18,
+      "row": 812
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 812,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 813
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 813
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 813,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 53,
+      "row": 838
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 21,
+      "row": 838
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 838,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 52,
+      "row": 838
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 838
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 838,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 839
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 839
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 839,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "F811",
+    "end_location": {
+      "column": 91,
+      "row": 885
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 85,
+      "row": 885
+    },
+    "message": "Redefinition of unused `status` from line 11: `status` redefined here",
+    "name": "redefined-while-unused",
+    "noqa_row": 885,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/redefined-while-unused"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 903
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 903
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 903,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 903
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 903
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 903,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 904
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 904
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 904,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 53,
+      "row": 955
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 32,
+      "row": 955
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 955,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 84,
+      "row": 955
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 69,
+      "row": 955
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 955,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 73,
+      "row": 975
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import date, datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 57,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 73,
+            "row": 975
+          },
+          "location": {
+            "column": 61,
+            "row": 975
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 61,
+      "row": 975
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 975,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 1010
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 1010
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1010,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 1010
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 1010
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1010,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 1011
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 1011
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1011,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 1026
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 1026
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1026,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 1026
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 1026
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1026,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 1027
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 1027
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1027,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 1068
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 1068
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1068,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 1068
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 1068
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1068,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 1069
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 1069
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1069,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 1093
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 1093
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1093,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 1093
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 1093
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1093,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 1094
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 1094
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1094,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 1128
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 1128
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1128,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 1128
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 1128
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1128,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 1129
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 1129
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1129,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 1188
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 1188
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1188,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 1188
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 1188
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1188,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 1189
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 1189
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1189,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 62,
+      "row": 1196
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import date, datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 57,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 62,
+            "row": 1196
+          },
+          "location": {
+            "column": 50,
+            "row": 1196
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 50,
+      "row": 1196
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 1196,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 55,
+      "row": 1197
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import date, datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 57,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 55,
+            "row": 1197
+          },
+          "location": {
+            "column": 43,
+            "row": 1197
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 43,
+      "row": 1197
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 1197,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 53,
+      "row": 1205
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 21,
+      "row": 1205
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1205,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 52,
+      "row": 1205
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 1205
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1205,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 1206
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 1206
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1206,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 63,
+      "row": 1217
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 42,
+      "row": 1217
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1217,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 94,
+      "row": 1217
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": null,
+    "location": {
+      "column": 79,
+      "row": 1217
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 1217,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 57,
+      "row": 1221
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\main.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import date, datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 57,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 57,
+            "row": 1221
+          },
+          "location": {
+            "column": 45,
+            "row": 1221
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 45,
+      "row": 1221
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 1221,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 21,
+      "row": 8
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\models.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import date, datetime, timezone\r\nfrom enum import StrEnum\r\nfrom uuid import uuid4\r\n\r\nfrom sqlalchemy import (\r\n    Boolean,\r\n    Date,\r\n    DateTime,\r\n    Float,\r\n    ForeignKey,\r\n    Integer,\r\n    String,\r\n    Text,\r\n    UniqueConstraint,\r\n)\r\nfrom sqlalchemy.orm import Mapped, mapped_column, relationship\r\n\r\nfrom .db import Base\r\n\r\n\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 11
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 1
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 1,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 37,
+      "row": 12
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\models.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import date, datetime, timezone, UTC",
+          "end_location": {
+            "column": 46,
+            "row": 1
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 37,
+            "row": 12
+          },
+          "location": {
+            "column": 25,
+            "row": 12
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 25,
+      "row": 12
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 12,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 72,
+      "row": 17
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\models.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import date, datetime, timezone, UTC",
+          "end_location": {
+            "column": 46,
+            "row": 1
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 72,
+            "row": 17
+          },
+          "location": {
+            "column": 60,
+            "row": 17
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 60,
+      "row": 17
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 17,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 39,
+      "row": 261
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 51,
+            "row": 6
+          },
+          "location": {
+            "column": 1,
+            "row": 6
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 39,
+            "row": 261
+          },
+          "location": {
+            "column": 27,
+            "row": 261
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 27,
+      "row": 261
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 261,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 48,
+      "row": 355
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 27,
+      "row": 355
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 355,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 79,
+      "row": 355
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 64,
+      "row": 355
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 355,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 52,
+      "row": 373
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 373
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 373,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 83,
+      "row": 373
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 68,
+      "row": 373
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 373,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 45,
+      "row": 379
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 24,
+      "row": 379
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 379,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 76,
+      "row": 379
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 61,
+      "row": 379
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 379,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 44,
+      "row": 385
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 385
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 385,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 75,
+      "row": 385
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 60,
+      "row": 385
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 385,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 76,
+      "row": 391
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 55,
+      "row": 391
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 391,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 107,
+      "row": 391
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 92,
+      "row": 391
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 391,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 84,
+      "row": 428
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 63,
+      "row": 428
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 428,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 115,
+      "row": 428
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 100,
+      "row": 428
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 428,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 62,
+      "row": 450
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 41,
+      "row": 450
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 450,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 93,
+      "row": 450
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 78,
+      "row": 450
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 450,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 72,
+      "row": 496
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 51,
+      "row": 496
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 496,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 103,
+      "row": 496
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 88,
+      "row": 496
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 496,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 36,
+      "row": 505
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 51,
+            "row": 6
+          },
+          "location": {
+            "column": 1,
+            "row": 6
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 36,
+            "row": 505
+          },
+          "location": {
+            "column": 24,
+            "row": 505
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 24,
+      "row": 505
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 505,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 74,
+      "row": 512
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 40,
+      "row": 512
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 512,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 73,
+      "row": 512
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 48,
+      "row": 512
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 512,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 105,
+      "row": 512
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 90,
+      "row": 512
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 512,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 524
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 524
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 524,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 524
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 524
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 524,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 525
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 525
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 525,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 536
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 536
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 536,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 536
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 536
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 536,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 537
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 537
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 537,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 67,
+      "row": 550
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 35,
+      "row": 550
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 550,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 66,
+      "row": 550
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 43,
+      "row": 550
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 550,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 98,
+      "row": 550
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 83,
+      "row": 550
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 550,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 89,
+      "row": 603
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 57,
+      "row": 603
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 603,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 88,
+      "row": 603
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 65,
+      "row": 603
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 603,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 120,
+      "row": 603
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 105,
+      "row": 603
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 603,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 93,
+      "row": 613
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 61,
+      "row": 613
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 613,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 92,
+      "row": 613
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 69,
+      "row": 613
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 613,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 124,
+      "row": 613
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 109,
+      "row": 613
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 613,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 97,
+      "row": 621
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 65,
+      "row": 621
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 621,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 96,
+      "row": 621
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 73,
+      "row": 621
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 621,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 128,
+      "row": 621
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 113,
+      "row": 621
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 621,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 101,
+      "row": 628
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 69,
+      "row": 628
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 628,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 100,
+      "row": 628
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 77,
+      "row": 628
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 628,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 132,
+      "row": 628
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\newsletter.py",
+    "fix": null,
+    "location": {
+      "column": 117,
+      "row": 628
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 628,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 93,
+      "row": 4
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\schemas.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timezone\r\nfrom typing import Annotated\r\n\r\nfrom pydantic import (\r\n    AfterValidator,\r\n    BaseModel,\r\n    ConfigDict,\r\n    EmailStr,\r\n    Field,\r\n    model_validator,\r\n)\r\n\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 6
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 1
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 1,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 124,
+      "row": 8
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\schemas.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timezone, UTC",
+          "end_location": {
+            "column": 40,
+            "row": 1
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 124,
+            "row": 8
+          },
+          "location": {
+            "column": 112,
+            "row": 8
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 112,
+      "row": 8
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 8,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 25,
+      "row": 14
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\security.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import secrets\r\nfrom datetime import datetime, timedelta, timezone\r\nfrom hashlib import sha256\r\nfrom hmac import compare_digest\r\nfrom hmac import new as hmac_new\r\n\r\nimport jwt\r\nfrom fastapi import Depends, HTTPException, Request, status\r\nfrom fastapi.security import OAuth2PasswordBearer\r\nfrom pwdlib import PasswordHash\r\nfrom sqlalchemy.orm import Session\r\n\r\nfrom .config import get_settings\r\nfrom .db import get_db\r\nfrom .models import User\r\n\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 16
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 1
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 1,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 42,
+      "row": 54
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\security.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 51,
+            "row": 1
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 42,
+            "row": 54
+          },
+          "location": {
+            "column": 30,
+            "row": 54
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 30,
+      "row": 54
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 54,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 40,
+      "row": 67
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\security.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 51,
+            "row": 1
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 40,
+            "row": 67
+          },
+          "location": {
+            "column": 28,
+            "row": 67
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 28,
+      "row": 67
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 67,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 74
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\security.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 74
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 74,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 54,
+      "row": 93
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\security.py",
+    "fix": null,
+    "location": {
+      "column": 33,
+      "row": 93
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 93,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 50,
+      "row": 217
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\votes.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 217
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 217,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 81,
+      "row": 217
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\votes.py",
+    "fix": null,
+    "location": {
+      "column": 66,
+      "row": 217
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 217,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 231
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\votes.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 231
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 231,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 231
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\votes.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 231
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 231,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 232
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\votes.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 232
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 232,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 51,
+      "row": 242
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\votes.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timezone, UTC",
+          "end_location": {
+            "column": 40,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 51,
+            "row": 242
+          },
+          "location": {
+            "column": 39,
+            "row": 242
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 39,
+      "row": 242
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 242,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 62,
+      "row": 288
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\votes.py",
+    "fix": null,
+    "location": {
+      "column": 41,
+      "row": 288
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 288,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 93,
+      "row": 288
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\votes.py",
+    "fix": null,
+    "location": {
+      "column": 78,
+      "row": 288
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 288,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 53,
+      "row": 297
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\votes.py",
+    "fix": null,
+    "location": {
+      "column": 21,
+      "row": 297
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 297,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 52,
+      "row": 297
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\votes.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 297
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 297,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 298
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\votes.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 298
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 298,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 324
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\votes.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 324
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 324,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 324
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\votes.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 324
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 324,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 325
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\votes.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 325
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 325,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 47,
+      "row": 344
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\votes.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timezone, UTC",
+          "end_location": {
+            "column": 40,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 47,
+            "row": 344
+          },
+          "location": {
+            "column": 35,
+            "row": 344
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 35,
+      "row": 344
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 344,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 57,
+      "row": 359
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\votes.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 359
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 359,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 56,
+      "row": 359
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\votes.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 359
+    },
+    "message": "Do not perform function call `require_role` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 359,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "B008",
+    "end_location": {
+      "column": 34,
+      "row": 360
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\app\\votes.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 360
+    },
+    "message": "Do not perform function call `Depends` in argument defaults; instead, perform the call within the function, or read the default from a module-level singleton variable",
+    "name": "function-call-in-default-argument",
+    "noqa_row": 360,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/function-call-in-default-argument"
+  },
+  {
+    "cell": null,
+    "code": "RUF100",
+    "end_location": {
+      "column": 28,
+      "row": 13
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\conftest.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 28,
+            "row": 13
+          },
+          "location": {
+            "column": 14,
+            "row": 13
+          }
+        }
+      ],
+      "message": "Remove unused `noqa` directive"
+    },
+    "location": {
+      "column": 16,
+      "row": 13
+    },
+    "message": "Unused `noqa` directive (non-enabled: `E402`)",
+    "name": "unused-noqa",
+    "noqa_row": 13,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-noqa"
+  },
+  {
+    "cell": null,
+    "code": "RUF100",
+    "end_location": {
+      "column": 56,
+      "row": 14
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\conftest.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 56,
+            "row": 14
+          },
+          "location": {
+            "column": 42,
+            "row": 14
+          }
+        }
+      ],
+      "message": "Remove unused `noqa` directive"
+    },
+    "location": {
+      "column": 44,
+      "row": 14
+    },
+    "message": "Unused `noqa` directive (non-enabled: `E402`)",
+    "name": "unused-noqa",
+    "noqa_row": 14,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-noqa"
+  },
+  {
+    "cell": null,
+    "code": "RUF100",
+    "end_location": {
+      "column": 84,
+      "row": 16
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\conftest.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 84,
+            "row": 16
+          },
+          "location": {
+            "column": 70,
+            "row": 16
+          }
+        }
+      ],
+      "message": "Remove unused `noqa` directive"
+    },
+    "location": {
+      "column": 72,
+      "row": 16
+    },
+    "message": "Unused `noqa` directive (non-enabled: `E402`)",
+    "name": "unused-noqa",
+    "noqa_row": 16,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-noqa"
+  },
+  {
+    "cell": null,
+    "code": "RUF100",
+    "end_location": {
+      "column": 39,
+      "row": 17
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\conftest.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 39,
+            "row": 17
+          },
+          "location": {
+            "column": 25,
+            "row": 17
+          }
+        }
+      ],
+      "message": "Remove unused `noqa` directive"
+    },
+    "location": {
+      "column": 27,
+      "row": 17
+    },
+    "message": "Unused `noqa` directive (non-enabled: `E402`)",
+    "name": "unused-noqa",
+    "noqa_row": 17,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-noqa"
+  },
+  {
+    "cell": null,
+    "code": "RUF100",
+    "end_location": {
+      "column": 75,
+      "row": 18
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\conftest.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 75,
+            "row": 18
+          },
+          "location": {
+            "column": 61,
+            "row": 18
+          }
+        }
+      ],
+      "message": "Remove unused `noqa` directive"
+    },
+    "location": {
+      "column": 63,
+      "row": 18
+    },
+    "message": "Unused `noqa` directive (non-enabled: `E402`)",
+    "name": "unused-noqa",
+    "noqa_row": 18,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-noqa"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 47,
+      "row": 139
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\test_absence_and_stats.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 51,
+            "row": 1
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 47,
+            "row": 139
+          },
+          "location": {
+            "column": 35,
+            "row": 139
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 35,
+      "row": 139
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 139,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 56,
+      "row": 3
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\test_attendance.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from app.models import AttendanceSession",
+          "end_location": {
+            "column": 56,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        }
+      ],
+      "message": "Remove unused import: `app.models.SessionStatus`"
+    },
+    "location": {
+      "column": 43,
+      "row": 3
+    },
+    "message": "`app.models.SessionStatus` imported but unused",
+    "name": "unused-import",
+    "noqa_row": 3,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 71,
+      "row": 18
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\test_attendance.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 51,
+            "row": 1
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 71,
+            "row": 18
+          },
+          "location": {
+            "column": 59,
+            "row": 18
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 59,
+      "row": 18
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 18,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 51,
+      "row": 96
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\test_attendance.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 51,
+            "row": 1
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 51,
+            "row": 96
+          },
+          "location": {
+            "column": 39,
+            "row": 96
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 39,
+      "row": 96
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 96,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 35,
+      "row": 9
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\test_attendance_scan.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import io\r\n\r\nimport pytest\r\nfrom PIL import Image\r\n\r\nfrom app import attendance_scan\r\nfrom app.db import SessionLocal\r\nfrom app.models import AttendanceRecord, AttendanceSession\r\nfrom app.recognition import OcrBox\r\n\r\n\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 13
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 1
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 1,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 46,
+      "row": 102
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\test_review_fixes.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 51,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 46,
+            "row": 102
+          },
+          "location": {
+            "column": 34,
+            "row": 102
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 34,
+      "row": 102
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 102,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 68,
+      "row": 10
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\test_security_controls.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timedelta, timezone\r\n\r\nimport jwt\r\nimport pytest\r\n\r\nfrom app.config import get_settings\r\nfrom app.models import AttendanceRecord, AttendanceSession, AuditLog, CodeAttempt\r\nfrom tests.helpers import confirm, enroll, make_actor, open_session\r\n\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 13
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 3
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 3,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 45,
+      "row": 65
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\test_security_controls.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 51,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 45,
+            "row": 65
+          },
+          "location": {
+            "column": 33,
+            "row": 65
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 33,
+      "row": 65
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 65,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 52,
+      "row": 78
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\test_security_controls.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 51,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 52,
+            "row": 78
+          },
+          "location": {
+            "column": 40,
+            "row": 78
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 40,
+      "row": 78
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 78,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 106,
+      "row": 92
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\test_security_controls.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 51,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 106,
+            "row": 92
+          },
+          "location": {
+            "column": 94,
+            "row": 92
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 94,
+      "row": 92
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 92,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 87,
+      "row": 102
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\test_security_controls.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 51,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 87,
+            "row": 102
+          },
+          "location": {
+            "column": 75,
+            "row": 102
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 75,
+      "row": 102
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 102,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 51,
+      "row": 120
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\test_security_controls.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 51,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 51,
+            "row": 120
+          },
+          "location": {
+            "column": 39,
+            "row": 120
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 39,
+      "row": 120
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 120,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 36,
+      "row": 242
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\test_security_controls.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 51,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 36,
+            "row": 242
+          },
+          "location": {
+            "column": 24,
+            "row": 242
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 24,
+      "row": 242
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 242,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 56,
+      "row": 3
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\test_ui_endpoints.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from tests.helpers import PASSWORD, confirm, open_session",
+          "end_location": {
+            "column": 70,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        }
+      ],
+      "message": "Remove unused import: `tests.helpers.make_actor`"
+    },
+    "location": {
+      "column": 46,
+      "row": 3
+    },
+    "message": "`tests.helpers.make_actor` imported but unused",
+    "name": "unused-import",
+    "noqa_row": 3,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 95,
+      "row": 7
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\test_units.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import re\r\nfrom datetime import datetime, timedelta, timezone\r\n\r\nfrom app.config import get_settings\r\nfrom app.main import distance_meters\r\nfrom app.models import as_utc\r\nfrom app.security import (\r\n    digest_code,\r\n    hash_password,\r\n    make_code,\r\n    make_qr_token,\r\n    verify_password,\r\n)\r\n\r\n\r\n",
+          "end_location": {
+            "column": 1,
+            "row": 10
+          },
+          "location": {
+            "column": 1,
+            "row": 1
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 1
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "name": "unsorted-imports",
+    "noqa_row": 1,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 40,
+      "row": 56
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\test_units.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 51,
+            "row": 2
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 40,
+            "row": 56
+          },
+          "location": {
+            "column": 28,
+            "row": 56
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 28,
+      "row": 56
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 56,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 44,
+      "row": 66
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\test_units.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 51,
+            "row": 2
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 44,
+            "row": 66
+          },
+          "location": {
+            "column": 32,
+            "row": 66
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 32,
+      "row": 66
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 66,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 44,
+      "row": 72
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\test_units.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 51,
+            "row": 2
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 44,
+            "row": 72
+          },
+          "location": {
+            "column": 32,
+            "row": 72
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 32,
+      "row": 72
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 72,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 52,
+      "row": 74
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\test_units.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 51,
+            "row": 2
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 52,
+            "row": 74
+          },
+          "location": {
+            "column": 40,
+            "row": 74
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 40,
+      "row": 74
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 74,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "UP017",
+    "end_location": {
+      "column": 39,
+      "row": 12
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\test_votes.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from datetime import datetime, timedelta, timezone, UTC",
+          "end_location": {
+            "column": 51,
+            "row": 3
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        },
+        {
+          "content": "UTC",
+          "end_location": {
+            "column": 39,
+            "row": 12
+          },
+          "location": {
+            "column": 27,
+            "row": 12
+          }
+        }
+      ],
+      "message": "Convert to `datetime.UTC` alias"
+    },
+    "location": {
+      "column": 27,
+      "row": 12
+    },
+    "message": "Use `datetime.UTC` alias",
+    "name": "datetime-timezone-utc",
+    "noqa_row": 12,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc"
+  },
+  {
+    "cell": null,
+    "code": "PIE810",
+    "end_location": {
+      "column": 63,
+      "row": 134
+    },
+    "filename": "D:\\uni\\third\\web\\teamwork-attendance\\tests\\test_votes.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "start.endswith((\"+00:00\", \"Z\"))",
+          "end_location": {
+            "column": 63,
+            "row": 134
+          },
+          "location": {
+            "column": 16,
+            "row": 134
+          }
+        }
+      ],
+      "message": "Merge into a single `endswith` call"
+    },
+    "location": {
+      "column": 16,
+      "row": 134
+    },
+    "message": "Call `endswith` once with a `tuple`",
+    "name": "multiple-starts-ends-with",
+    "noqa_row": 134,
+    "severity": "error",
+    "url": "https://docs.astral.sh/ruff/rules/multiple-starts-ends-with"
+  }
+]
