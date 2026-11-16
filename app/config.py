@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     ocr_threads: int = 0
     # Dates in notification texts are written in this time zone.
     timezone: str = "Europe/Bucharest"
+    # Grafana reports: login role that may read only the `reporting` views. Empty password: no role is created.
+    reporting_db_user: str = "grafana_reader"
+    reporting_db_password: str = ""
     # "production" refuses to start with the built-in development secrets.
     app_env: str = "development"
 

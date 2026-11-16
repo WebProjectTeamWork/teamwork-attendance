@@ -23,6 +23,8 @@ services:
       # Development only. Give this to professors so they can create accounts; change it for any real deployment.
       PROFESSOR_SIGNUP_CODE: professor-dev-only
       UPLOAD_DIR: /data/uploads
+      # Login role Grafana uses; the app creates it and lets it read only the reporting views.
+      REPORTING_DB_PASSWORD: grafana-reader-dev-only
     volumes:
       - uploads:/data/uploads
     ports:
@@ -31,6 +33,29 @@ services:
       db:
         condition: service_healthy
 
+  grafana:
+    image: grafana/grafana-oss:11.3.0
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      # Development only: change for any real deployment.
+      GF_SECURITY_ADMIN_PASSWORD: grafana-dev-only
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: /var/lib/grafana/dashboards/overview.json
+      REPORTING_DB_HOST: db:5432
+      REPORTING_DB_NAME: attendance
+      REPORTING_DB_USER: grafana_reader
+      REPORTING_DB_PASSWORD: grafana-reader-dev-only
+      REPORTING_DB_SSLMODE: disable
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
 volumes:
   postgres_data:
   uploads:
+  grafana_data:

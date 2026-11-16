@@ -41,6 +41,7 @@ from .models import (
 )
 from .newsletter import router as newsletter_router
 from .newsletter import subscriptions_router
+from .reporting import ensure_reporting_views
 from .schemas import (
     AttendanceConfirmRequest,
     AttendanceResponse,
@@ -113,6 +114,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     check_production_settings()
     Base.metadata.create_all(bind=engine)
     ensure_additive_schema()
+    ensure_reporting_views()
     yield
 
 

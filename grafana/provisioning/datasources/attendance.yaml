@@ -1,0 +1,18 @@
+# The attendance database, read through the read-only reporting role (see app/reporting.py).
+apiVersion: 1
+datasources:
+  - name: Attendance
+    uid: attendance-db
+    type: grafana-postgresql-datasource
+    url: ${REPORTING_DB_HOST}
+    user: ${REPORTING_DB_USER}
+    isDefault: true
+    editable: false
+    jsonData:
+      database: ${REPORTING_DB_NAME}
+      sslmode: ${REPORTING_DB_SSLMODE}
+      postgresVersion: 1600
+      timescaledb: false
+      maxOpenConns: 5
+    secureJsonData:
+      password: ${REPORTING_DB_PASSWORD}
