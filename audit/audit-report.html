@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Attendance App Audit</title>
+<style>
+  :root {
+    --ink: #1b2430; --muted: #5b6676; --line: #dfe3ea; --surface: #ffffff; --page: #f5f6f8;
+    --accent: #2f6fdd; --high: #b42318; --med: #c77700; --low: #2f6fdd; --info: #5b6676; --good: #1e8a4c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #e8ecf2; --muted: #9aa5b5; --line: #2c3440; --surface: #161b22; --page: #0d1117;
+      --accent: #6aa2ff; --high: #ff7b72; --med: #e3b341; --low: #6aa2ff; --info: #9aa5b5; --good: #56d364;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #e8ecf2; --muted: #9aa5b5; --line: #2c3440; --surface: #161b22; --page: #0d1117;
+    --accent: #6aa2ff; --high: #ff7b72; --med: #e3b341; --low: #6aa2ff; --info: #9aa5b5; --good: #56d364;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1040px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 26px; margin: 0 0 4px; }
+  h2 { font-size: 19px; margin: 36px 0 12px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+  h3 { font-size: 15px; margin: 0 0 6px; }
+  p.lede, .muted { color: var(--muted); }
+  code { font: 13px/1.4 ui-monospace, Consolas, monospace; background: var(--page); padding: 1px 4px; border-radius: 4px; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 20px 0; }
+  .tile { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; }
+  .tile .num { font-size: 26px; font-weight: 700; }
+  .tile .label { color: var(--muted); font-size: 13px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; margin-bottom: 14px; }
+  .bar-row { display: grid; grid-template-columns: 170px 1fr 92px; gap: 10px; align-items: center; margin: 7px 0; font-size: 14px; }
+  .track { background: var(--page); border-radius: 4px; height: 14px; overflow: hidden; }
+  .fill { height: 100%; border-radius: 4px; background: var(--accent); }
+  .fill.warn { background: var(--med); }
+  .val { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+  .stack { display: flex; height: 26px; border-radius: 6px; overflow: hidden; margin: 8px 0 12px; }
+  .stack span { display: block; height: 100%; }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--muted); }
+  .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+  table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--page); font-weight: 600; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 999px; color: #fff; white-space: nowrap; }
+  .sev-High { background: var(--high); }
+  .sev-Medium { background: var(--med); }
+  .sev-Low { background: var(--low); }
+  .sev-Info { background: var(--info); }
+  .pass { color: var(--good); font-weight: 600; }
+  .fail { color: var(--high); font-weight: 600; }
+  .wrap { overflow-x: auto; }
+  .finding { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin: 10px 0; }
+  .finding p { margin: 6px 0; }
+  @media (max-width: 600px) { .bar-row { grid-template-columns: 1fr 64px; } .bar-row .track { grid-column: 1 / -1; order: 3; } }
+</style>
+</head>
+<body>
+<main>
+
+<h1>Teamwork Attendance (Roll Call) — Audit Report</h1>
+<p class="lede">Whole repository: backend, frontend, tests, Docker and Compose configuration. Audit date 2026-11-10, branch <code>main</code>. No application code was changed. The full write-up is in <code>audit/AUDIT_REPORT.md</code>.</p>
+<p class="muted">Written for: the project team, to decide what to fix before any real deployment.</p>
+
+<div class="tiles">
+  <div class="tile"><div class="num pass">282</div><div class="label">tests passed, 0 failed</div></div>
+  <div class="tile"><div class="num">97%</div><div class="label">backend statement coverage</div></div>
+  <div class="tile"><div class="num pass">0</div><div class="label">Bandit findings (3,088 LOC)</div></div>
+  <div class="tile"><div class="num">1</div><div class="label">dependency advisory (dev-only)</div></div>
+  <div class="tile"><div class="num">25</div><div class="label">findings (1 High, 5 Medium)</div></div>
+  <div class="tile"><div class="num">56</div><div class="label">API operations</div></div>
+</div>
+
+<h2>Verdict</h2>
+<p>The core security design is sound: Argon2 passwords, HMAC-hashed attendance codes, pinned JWT algorithm, ownership checks on every professor endpoint, HttpOnly cookie sessions, magic-byte upload checks, and a DOM built with <code>textContent</code>. The main risks are <strong>deployment configuration</strong> (committed secrets and the professor access code in <code>docker-compose.yml</code>), <strong>missing HTTP security headers</strong>, and <strong>sign-in and attendance throttling</strong> that lets one user lock out others. No code-execution or injection issue was found.</p>
+
+<h2>Findings by severity</h2>
+<div class="card">
+  <div class="stack" role="img" aria-label="High 1, Medium 5, Low 17, Info 2">
+    <span style="flex:1;background:var(--high)" title="High: 1"></span>
+    <span style="flex:5;background:var(--med)" title="Medium: 5"></span>
+    <span style="flex:17;background:var(--low)" title="Low: 17"></span>
+    <span style="flex:2;background:var(--info)" title="Info: 2"></span>
+  </div>
+  <div class="legend">
+    <span><i class="sw" style="background:var(--high)"></i>High 1</span>
+    <span><i class="sw" style="background:var(--med)"></i>Medium 5</span>
+    <span><i class="sw" style="background:var(--low)"></i>Low 17</span>
+    <span><i class="sw" style="background:var(--info)"></i>Info 2</span>
+  </div>
+</div>
+
+<h2>Backend test coverage by module</h2>
+<div class="card" role="img" aria-label="Statement coverage by module">
+  <div class="bar-row"><span>newsletter.py</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="val">100% (0/276)</span></div>
+  <div class="bar-row"><span>security, schemas, models, config</span><div class="track"><div class="fill" style="width:100%"></div></div><span class="val">100% (0/213)</span></div>
+  <div class="bar-row"><span>main.py</span><div class="track"><div class="fill" style="width:98%"></div></div><span class="val">98% (10/505)</span></div>
+  <div class="bar-row"><span>votes.py</span><div class="track"><div class="fill" style="width:98%"></div></div><span class="val">98% (5/203)</span></div>
+  <div class="bar-row"><span>attendance_scan.py</span><div class="track"><div class="fill" style="width:98%"></div></div><span class="val">98% (2/84)</span></div>
+  <div class="bar-row"><span>db.py</span><div class="track"><div class="fill" style="width:93%"></div></div><span class="val">93% (2/27)</span></div>
+  <div class="bar-row"><span>recognition.py</span><div class="track"><div class="fill" style="width:92%"></div></div><span class="val">92% (18/235)</span></div>
+  <div class="bar-row"><span>roster.py</span><div class="track"><div class="fill warn" style="width:85%"></div></div><span class="val">85% (16/110)</span></div>
+  <div class="bar-row"><strong>Total</strong><div class="track"><div class="fill" style="width:97%"></div></div><span class="val"><strong>97% (53/1,799)</strong></span></div>
+  <p class="muted small">JavaScript (3,275 lines) has no automated tests; it was only syntax-checked.</p>
+</div>
+
+<h2>API operations by access level</h2>
+<div class="card" role="img" aria-label="Operations by access level: professor 25, signed-in with role checked in handler 15, student 11, public 5">
+  <div class="bar-row"><span>Professor only</span><div class="track"><div class="fill" style="width:44.6%"></div></div><span class="val">25</span></div>
+  <div class="bar-row"><span>Signed-in, role checked in handler</span><div class="track"><div class="fill" style="width:26.8%"></div></div><span class="val">15</span></div>
+  <div class="bar-row"><span>Student only</span><div class="track"><div class="fill" style="width:19.6%"></div></div><span class="val">11</span></div>
+  <div class="bar-row"><span>Public</span><div class="track"><div class="fill warn" style="width:8.9%"></div></div><span class="val">5</span></div>
+  <p class="muted small">Public: <code>/health</code>, register, token, login, logout. Routes: main 31, newsletter 16, votes 6, attendance scan 3.</p>
+</div>
+
+<h2>Findings</h2>
+
+<div class="finding"><h3><span class="badge sev-High">High</span> &nbsp;S-01 Committed secrets and professor access code in Compose</h3>
+<p><code>docker-compose.yml</code> commits <code>JWT_SECRET</code> (line 20), <code>CODE_SECRET</code> (21), <code>PROFESSOR_SIGNUP_CODE</code> (24) and a database password (7), and publishes port 8000 on all interfaces (29). <code>APP_ENV</code> is not set, so the production guard in <code>main.py:96</code> never runs.</p>
+<p><strong>Impact:</strong> anyone who can read the repo and reach a deployment from this file can register as a professor, forge JWTs and forge QR tokens.</p>
+<p><strong>Fix:</strong> move secrets out of the committed file; set <code>APP_ENV=production</code> outside local use; bind to 127.0.0.1; rotate values if ever used with real data.</p></div>
+
+<div class="finding"><h3><span class="badge sev-Medium">Medium</span> &nbsp;S-02 No HTTP security headers; CDN script without integrity</h3>
+<p>Live check: <code>/health</code> and <code>/</code> send no CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy or HSTS. <code>index.html:13</code> loads a script from cdnjs with no SRI hash.</p>
+<p><strong>Impact:</strong> the app can be framed (clickjacking on professor actions) and has no CSP backstop.</p>
+<p><strong>Fix:</strong> header middleware with <code>frame-ancestors 'none'</code>; SRI or self-host the script.</p></div>
+
+<div class="finding"><h3><span class="badge sev-Medium">Medium</span> &nbsp;S-03 Logout does not invalidate the token</h3>
+<p>Live check: a Bearer token copied before logout still returned 200 afterwards. Logout only clears the cookie (<code>main.py:320-321</code>); the token lives 30 minutes.</p>
+<p><strong>Fix:</strong> server-side denylist or a "tokens valid after" timestamp checked in <code>current_user</code>.</p></div>
+
+<div class="finding"><h3><span class="badge sev-Medium">Medium</span> &nbsp;S-04 Account-wide sign-in lockout enables targeted denial of service</h3>
+<p>Failures are counted per email only (<code>main.py:271-291</code>). Live check: after 10 wrong passwords the <strong>correct</strong> password returns 429 for 15 minutes. Anyone who knows an email can lock that user out.</p>
+<p><strong>Fix:</strong> key the throttle on email plus IP, or add backoff.</p></div>
+
+<div class="finding"><h3><span class="badge sev-Medium">Medium</span> &nbsp;S-05 Shared-IP limit can block a whole class</h3>
+<p>The attendance limit is 30 failures per IP per 10 minutes, and it is checked <strong>before</strong> the code (<code>main.py:516</code> vs <code>530</code>). Students on one campus NAT share an IP, so a few mistyped codes can block classmates who type the correct one. The device limit is bypassable because <code>X-Device-Id</code> comes from the client.</p>
+<p><strong>Fix:</strong> do not let the IP limit gate correct codes; use backoff instead of a hard IP block.</p></div>
+
+<div class="finding"><h3><span class="badge sev-Medium">Medium</span> &nbsp;D-01 Roster import merges students with the same name</h3>
+<p><code>placeholder_email()</code> (<code>roster.py:84-89</code>) builds the account email from the name. Two students with the same name become one account, and the second enrollment is silently skipped (<code>roster.py:144-149</code>). That student cannot be marked present, so class statistics are wrong.</p>
+<p><strong>Fix:</strong> key on the department's student ID, or stop and report duplicate names.</p></div>
+
+<div class="finding"><h3><span class="badge sev-Low">Low</span> &nbsp;S-06 to S-12 Hardening</h3>
+<p><strong>S-06</strong> Account enumeration: duplicate email returns 409 (<code>main.py:257</code>); enrollment returns 404 for unknown emails (<code>main.py:359-360</code>); login skips the hash for unknown users (<code>main.py:286</code>, timing, not measured).<br>
+<strong>S-07</strong> No maximum password length (<code>schemas.py:13</code>); a 4,096-character password was accepted.<br>
+<strong>S-08</strong> Cookie <code>Secure</code> depends on the request scheme (<code>main.py:313</code>); CSRF defence relies only on <code>SameSite=Strict</code> (<code>main.py:314</code>).<br>
+<strong>S-09</strong> External attachment URLs accepted and rendered as links (<code>schemas.py:188</code>, <code>app.js:1735</code>): a phishing path around the upload checks.<br>
+<strong>S-10</strong> PDFs served inline from the app origin (<code>main.py:801-807</code>); mitigated by the magic-byte check, <code>nosniff</code> and <code>no-store</code>.<br>
+<strong>S-11</strong> Docker image runs as root with no HEALTHCHECK (<code>Dockerfile</code>).<br>
+<strong>S-12</strong> <code>/docs</code> and <code>/openapi.json</code> are public (verified 200).</p></div>
+
+<div class="finding"><h3><span class="badge sev-Low">Low</span> &nbsp;Correctness, quality and operations</h3>
+<p><strong>C-01</strong> Session date uses UTC (<code>main.py:426</code>) while notifications use Europe/Bucharest; sessions opened after midnight local time get the previous date.<br>
+<strong>C-02</strong> Concurrent duplicate registration returns 500 (<code>main.py:256-268</code> has no IntegrityError handler).<br>
+<strong>Q-01</strong> <code>main.py</code> is 1,232 lines and 48 functions; split by feature.<br>
+<strong>Q-02</strong> Complexity over 10: <code>confirm_attendance</code> 13, <code>match_names</code> 12, <code>create_vote</code> 11.<br>
+<strong>Q-03</strong> Ownership checks repeated inline (<code>main.py:459, 478, 618</code>) although <code>owned_session()</code> exists.<br>
+<strong>Q-04</strong> Lint debt: unused imports (<code>main.py:3, 11</code>; two test files), <code>zip()</code> without <code>strict=</code>, name shadowing at <code>main.py:885</code>.<br>
+<strong>Q-05</strong> No migrations; schema from <code>create_all()</code> plus an additive helper (<code>db.py:27</code>).<br>
+<strong>Q-06</strong> N+1 queries in <code>list_sections</code> (<code>main.py:955-1004</code>); unbounded message loads in <code>thread_summaries</code> (<code>newsletter.py:307</code>).<br>
+<strong>Q-07</strong> No frontend tests (about 3,275 lines of JS).<br>
+<strong>Ops-01</strong> <code>Dockerfile</code> runs <code>pip install .</code>, ignoring <code>uv.lock</code>, so builds are not reproducible.</p></div>
+
+<div class="finding"><h3><span class="badge sev-Info">Info</span> &nbsp;S-13 and Doc-01</h3>
+<p><strong>S-13</strong> pip-audit: <code>pytest 8.4.2</code> (PYSEC-2026-1845, fixed in 9.0.3). Dev dependency only.<br>
+<strong>Doc-01</strong> <code>PROBLEMS.md</code> is stale and refers to a <code>frontend/</code> folder that does not exist here. Update or remove it.</p></div>
+
+<h2>Live probes (in-process, temporary database)</h2>
+<div class="wrap"><table>
+  <thead><tr><th>Check</th><th>Result</th><th>Verdict</th></tr></thead>
+  <tbody>
+    <tr><td>Professor sign-up without / with wrong code</td><td>403 / 403</td><td class="pass">Pass</td></tr>
+    <tr><td>Security headers on <code>/health</code> and <code>/</code></td><td>none</td><td class="fail">Fail (S-02)</td></tr>
+    <tr><td><code>/docs</code>, <code>/openapi.json</code> unauthenticated</td><td>200 / 200</td><td class="fail">Exposure (S-12)</td></tr>
+    <tr><td>Login cookie flags over HTTP</td><td>HttpOnly yes, SameSite=Strict yes, Secure no (expected on http)</td><td class="pass">Pass, note S-08</td></tr>
+    <tr><td>Token after logout</td><td>200</td><td class="fail">Fail (S-03)</td></tr>
+    <tr><td>Correct password after 10 failures</td><td>429</td><td class="fail">Fail (S-04)</td></tr>
+    <tr><td>Duplicate email registration</td><td>409</td><td class="fail">Enumeration (S-06)</td></tr>
+    <tr><td>4,096-character password</td><td>201</td><td class="fail">Note (S-07)</td></tr>
+    <tr><td>6th wrong code by one student (limit 5)</td><td>429</td><td class="pass">Pass</td></tr>
+    <tr><td>Correct code from a second student, same IP, below IP limit</td><td>200</td><td class="pass">Pass</td></tr>
+  </tbody>
+</table></div>
+
+<h2>Recommended order</h2>
+<ol>
+  <li>S-01: remove committed secrets, set <code>APP_ENV=production</code>, bind to localhost.</li>
+  <li>S-04 and S-05: stop one user's failures from blocking others.</li>
+  <li>S-02, S-03, S-12: security headers, logout revocation, hide API docs in production.</li>
+  <li>D-01: roster homonym merge.</li>
+  <li>C-01, C-02, S-06, S-07, S-09: smaller correctness and hardening items.</li>
+  <li>Q-01 to Q-07 and Ops-01: refactoring, migrations, frontend tests, pinned dependencies.</li>
+</ol>
+
+<h2>Method</h2>
+<p class="muted">Read all backend modules and the security-relevant frontend paths. Ran the existing test suite with coverage, Bandit, Ruff, pip-audit and <code>node --check</code>. Enumerated routes by AST. Ran 10 in-process probes. Not covered: network scanning, load testing, Docker build, browser testing, timing measurement. Raw evidence is in <code>audit/evidence/</code>.</p>
+
+</main>
+</body>
+</html>
