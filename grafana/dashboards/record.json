@@ -1,0 +1,540 @@
+{
+  "uid": "attendance-record",
+  "title": "Attendance record",
+  "description": "One student's full attendance record for a period, per course, with the attendance percentage. Made to print.",
+  "tags": [
+    "attendance"
+  ],
+  "timezone": "browser",
+  "editable": true,
+  "graphTooltip": 1,
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "",
+  "liveNow": false,
+  "fiscalYearStartMonth": 0,
+  "weekStart": "monday",
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5m",
+      "15m",
+      "1h"
+    ]
+  },
+  "templating": {
+    "list": [
+      {
+        "name": "student",
+        "label": "Student",
+        "description": "",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "attendance-db"
+        },
+        "query": "SELECT student_name || ' (' || student_email || ')' AS __text, student_id AS __value FROM reporting.student_session_status GROUP BY 1, 2 ORDER BY 1",
+        "definition": "SELECT student_name || ' (' || student_email || ')' AS __text, student_id AS __value FROM reporting.student_session_status GROUP BY 1, 2 ORDER BY 1",
+        "refresh": 1,
+        "sort": 0,
+        "multi": false,
+        "includeAll": false,
+        "current": {}
+      },
+      {
+        "name": "section",
+        "label": "Class",
+        "description": "",
+        "type": "query",
+        "datasource": {
+          "type": "grafana-postgresql-datasource",
+          "uid": "attendance-db"
+        },
+        "query": "SELECT section_name AS __text, section_id AS __value FROM reporting.student_session_status WHERE student_id = '$student' GROUP BY 1, 2 ORDER BY 1",
+        "definition": "SELECT section_name AS __text, section_id AS __value FROM reporting.student_session_status WHERE student_id = '$student' GROUP BY 1, 2 ORDER BY 1",
+        "refresh": 1,
+        "sort": 0,
+        "multi": true,
+        "includeAll": true,
+        "current": {
+          "selected": true,
+          "text": [
+            "All"
+          ],
+          "value": [
+            "$__all"
+          ]
+        }
+      },
+      {
+        "name": "late",
+        "label": "Late arrivals",
+        "description": "Whether a late check-in counts toward the attendance rate.",
+        "type": "custom",
+        "query": "Count as attended : yes, Count as missed : no",
+        "multi": false,
+        "includeAll": false,
+        "allowCustomValue": false,
+        "current": {
+          "selected": true,
+          "text": "Count as attended",
+          "value": "yes"
+        },
+        "options": [
+          {
+            "selected": true,
+            "text": "Count as attended",
+            "value": "yes"
+          },
+          {
+            "selected": false,
+            "text": "Count as missed",
+            "value": "no"
+          }
+        ]
+      },
+      {
+        "name": "excused",
+        "label": "Excused absences",
+        "description": "Leave out: an excused absence does not lower the rate (the app's rule).",
+        "type": "custom",
+        "query": "Leave out : skip, Count as missed : count",
+        "multi": false,
+        "includeAll": false,
+        "allowCustomValue": false,
+        "current": {
+          "selected": true,
+          "text": "Leave out",
+          "value": "skip"
+        },
+        "options": [
+          {
+            "selected": true,
+            "text": "Leave out",
+            "value": "skip"
+          },
+          {
+            "selected": false,
+            "text": "Count as missed",
+            "value": "count"
+          }
+        ]
+      }
+    ]
+  },
+  "links": [
+    {
+      "title": "Attendance reports",
+      "type": "dashboards",
+      "tags": [
+        "attendance"
+      ],
+      "asDropdown": false,
+      "includeVars": false,
+      "keepTime": true,
+      "targetBlank": false,
+      "icon": "external link"
+    }
+  ],
+  "annotations": {
+    "list": []
+  },
+  "panels": [
+    {
+      "type": "table",
+      "title": "Student",
+      "description": "",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "attendance-db"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 24,
+        "h": 4
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "attendance-db"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT student_name AS \"Student\", student_email AS \"Email\",\n       to_char($__timeFrom()::timestamptz, 'YYYY-MM-DD') AS \"From\", to_char($__timeTo()::timestamptz, 'YYYY-MM-DD') AS \"To\",\n       count(DISTINCT section_id) AS \"Courses\", count(*) AS \"Sessions\", round(100.0 * count(*) FILTER (WHERE (status = 'present' OR (status = 'late' AND '$late' = 'yes'))) / NULLIF(count(*) - count(*) FILTER (WHERE (status = 'excused' AND '$excused' = 'skip')), 0), 1) AS \"Attendance\"\nFROM reporting.student_session_status WHERE student_id = '$student' AND section_id IN ($section) AND $__timeFilter(starts_at)\nGROUP BY student_name, student_email"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          },
+          "noValue": "–"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Attendance"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": []
+      },
+      "id": 1
+    },
+    {
+      "type": "table",
+      "title": "Attendance per course",
+      "description": "",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "attendance-db"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 4,
+        "w": 24,
+        "h": 6
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "attendance-db"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT \"Course\", \"Professor\", \"Sessions\", \"Present\", \"Late\", \"Excused\", \"Absent\", \"Attendance\" FROM (\n  SELECT 0 AS o, section_name AS \"Course\", professor_name AS \"Professor\", count(*) AS \"Sessions\",\n         count(*) FILTER (WHERE status = 'present') AS \"Present\", count(*) FILTER (WHERE status = 'late') AS \"Late\",\n         count(*) FILTER (WHERE status = 'excused') AS \"Excused\", count(*) FILTER (WHERE status = 'absent') AS \"Absent\",\n         round(100.0 * count(*) FILTER (WHERE (status = 'present' OR (status = 'late' AND '$late' = 'yes'))) / NULLIF(count(*) - count(*) FILTER (WHERE (status = 'excused' AND '$excused' = 'skip')), 0), 1) AS \"Attendance\"\n  FROM reporting.student_session_status WHERE student_id = '$student' AND section_id IN ($section) AND $__timeFilter(starts_at) GROUP BY section_name, professor_name\n  UNION ALL\n  SELECT 1, 'All courses', '', count(*), count(*) FILTER (WHERE status = 'present'),\n         count(*) FILTER (WHERE status = 'late'), count(*) FILTER (WHERE status = 'excused'),\n         count(*) FILTER (WHERE status = 'absent'), round(100.0 * count(*) FILTER (WHERE (status = 'present' OR (status = 'late' AND '$late' = 'yes'))) / NULLIF(count(*) - count(*) FILTER (WHERE (status = 'excused' AND '$excused' = 'skip')), 0), 1)\n  FROM reporting.student_session_status WHERE student_id = '$student' AND section_id IN ($section) AND $__timeFilter(starts_at)) t\nORDER BY o, \"Course\""
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          },
+          "noValue": "–"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Attendance"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Course"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 240
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Sessions"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Present"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Late"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Excused"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Absent"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 100
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": []
+      },
+      "id": 2
+    },
+    {
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "x": 0,
+        "y": 10,
+        "w": 24,
+        "h": 2
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "**How the attendance percentage is counted:** attended sessions ÷ sessions held, between ${__from:date:YYYY-MM-DD}\nand ${__to:date:YYYY-MM-DD}. Late arrivals: **${late:text}**. Excused absences (approved absence requests):\n**${excused:text}**. Cancelled sessions are not counted."
+      },
+      "id": 3
+    },
+    {
+      "type": "row",
+      "title": "${section}",
+      "collapsed": false,
+      "gridPos": {
+        "x": 0,
+        "y": 12,
+        "w": 24,
+        "h": 1
+      },
+      "id": 4,
+      "panels": [],
+      "repeat": "section"
+    },
+    {
+      "type": "table",
+      "title": "Every session",
+      "description": "Every session of this course in the period, oldest first, with the running percentage.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "attendance-db"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 13,
+        "w": 24,
+        "h": 18
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "attendance-db"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT starts_at AS \"Session\", initcap(status) AS \"Status\",\n       coalesce(initcap(r.req_status), '') AS \"Absence request\",\n       round(100.0 * sum(CASE WHEN (status = 'present' OR (status = 'late' AND '$late' = 'yes')) THEN 1 ELSE 0 END) OVER w\n             / NULLIF(count(*) OVER w - sum(CASE WHEN (status = 'excused' AND '$excused' = 'skip') THEN 1 ELSE 0 END) OVER w, 0), 1)\n         AS \"Attendance so far\"\nFROM reporting.student_session_status s\nLEFT JOIN LATERAL (SELECT a.status AS req_status FROM reporting.absence_requests a\n                   WHERE a.student_id = s.student_id AND a.attendance_session_id = s.session_id\n                   ORDER BY a.created_at DESC LIMIT 1) r ON true\nWHERE s.student_id = '$student' AND s.section_id IN ($section) AND $__timeFilter(s.starts_at)\nWINDOW w AS (ORDER BY starts_at ROWS UNBOUNDED PRECEDING)\nORDER BY starts_at"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          },
+          "noValue": "–"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Session"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsLocal"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Status"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "Present": {
+                        "color": "#2a78d6",
+                        "index": 0
+                      },
+                      "Late": {
+                        "color": "#c98500",
+                        "index": 1
+                      },
+                      "Excused": {
+                        "color": "#1baf7a",
+                        "index": 2
+                      },
+                      "Absent": {
+                        "color": "#d03b3b",
+                        "index": 3
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 120
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Attendance so far"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percent"
+              },
+              {
+                "id": "decimals",
+                "value": 1
+              },
+              {
+                "id": "custom.width",
+                "value": 160
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Absence request"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "Pending": {
+                        "text": "Waiting",
+                        "index": 0
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": []
+      },
+      "id": 5
+    }
+  ]
+}

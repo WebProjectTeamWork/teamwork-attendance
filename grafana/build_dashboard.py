@@ -6,6 +6,7 @@ Three linked reports share the same settings (variables), so a click carries the
   overview.json  every class of the selected professors
   class.json     one class: attendance register, sessions, students
   student.json   one student: progress, history per class, absences
+  record.json    one student's printable attendance record: every session per course, with the percentage
 
 Colors (validated with the dataviz palette checker on Grafana's light and dark panel surfaces, all pairs):
 present blue, late amber, excused aqua, absent red. Single-series charts use the blue only.
@@ -594,11 +595,100 @@ ORDER BY s.starts_at DESC""", "Absences, newest first, with the state of any abs
                 by_name("Absence request", ("mappings", [{"type": "value", "options": {
                     "Pending": {"text": "Waiting", "index": 0}}}])),
             ]),
+            table("Every session", 24, 14, f"""
+SELECT s.section_name AS "Class", s.starts_at AS "Session", initcap(s.status) AS "State",
+       coalesce(initcap(r.status), '') AS "Absence request"
+FROM {SSS} s
+LEFT JOIN LATERAL (SELECT status FROM reporting.absence_requests a
+                   WHERE a.student_id = s.student_id AND a.attendance_session_id = s.session_id
+                   ORDER BY a.created_at DESC LIMIT 1) r ON true
+WHERE s.student_id = '$student' AND s.section_id IN ($section) AND $__timeFilter(s.starts_at)
+ORDER BY s.section_name, s.starts_at""",
+                  "The full record: every session in the time range, by class, oldest first. "
+                  "Export it with the panel menu → Inspect → Data → Download CSV.", [
+                by_name("Session", ("unit", "dateTimeAsLocal")),
+                by_name("State", ("mappings", [{"type": "value", "options": {
+                    "Present": {"color": PRESENT, "index": 0}, "Late": {"color": LATE, "index": 1},
+                    "Excused": {"color": EXCUSED, "index": 2}, "Absent": {"color": ABSENT, "index": 3}}}]),
+                        ("custom.cellOptions", {"type": "color-background", "mode": "basic"}), ("custom.width", 110)),
+                by_name("Absence request", ("mappings", [{"type": "value", "options": {
+                    "Pending": {"text": "Waiting", "index": 0}}}])),
+            ]),
         ]),
     ],
 )
 
+# --- Attendance record (a printable handout for one student) ------------------------------------------------
+
+RECORD_STATE = by_name("Status", ("mappings", [{"type": "value", "options": {
+    "Present": {"color": PRESENT, "index": 0}, "Late": {"color": LATE, "index": 1},
+    "Excused": {"color": EXCUSED, "index": 2}, "Absent": {"color": ABSENT, "index": 3}}}]),
+                       ("custom.cellOptions", {"type": "color-background", "mode": "basic"}), ("custom.width", 120))
+RECORD_FS = "student_id = '$student' AND section_id IN ($section) AND $__timeFilter(starts_at)"
+RULE_TEXT = """
+**How the attendance percentage is counted:** attended sessions ÷ sessions held, between ${__from:date:YYYY-MM-DD}
+and ${__to:date:YYYY-MM-DD}. Late arrivals: **${late:text}**. Excused absences (approved absence requests):
+**${excused:text}**. Cancelled sessions are not counted.
+"""
+
+attendance_record = dashboard(
+    "attendance-record", "Attendance record",
+    "One student's full attendance record for a period, per course, with the attendance percentage. Made to print.",
+    [STUDENT, STUDENT_CLASSES, LATE_VAR, EXCUSED_VAR],
+    [
+        (None, False, [
+            table("Student", 24, 4, f"""
+SELECT student_name AS "Student", student_email AS "Email",
+       to_char($__timeFrom()::timestamptz, 'YYYY-MM-DD') AS "From", to_char($__timeTo()::timestamptz, 'YYYY-MM-DD') AS "To",
+       count(DISTINCT section_id) AS "Courses", count(*) AS "Sessions", {rate("Attendance")}
+FROM {SSS} WHERE {RECORD_FS}
+GROUP BY student_name, student_email""", overrides=[percent_column("Attendance")]),
+            table("Attendance per course", 24, 6, f"""
+SELECT "Course", "Professor", "Sessions", "Present", "Late", "Excused", "Absent", "Attendance" FROM (
+  SELECT 0 AS o, section_name AS "Course", professor_name AS "Professor", count(*) AS "Sessions",
+         count(*) FILTER (WHERE status = 'present') AS "Present", count(*) FILTER (WHERE status = 'late') AS "Late",
+         count(*) FILTER (WHERE status = 'excused') AS "Excused", count(*) FILTER (WHERE status = 'absent') AS "Absent",
+         {rate("Attendance")}
+  FROM {SSS} WHERE {RECORD_FS} GROUP BY section_name, professor_name
+  UNION ALL
+  SELECT 1, 'All courses', '', count(*), count(*) FILTER (WHERE status = 'present'),
+         count(*) FILTER (WHERE status = 'late'), count(*) FILTER (WHERE status = 'excused'),
+         count(*) FILTER (WHERE status = 'absent'), {rate()}
+  FROM {SSS} WHERE {RECORD_FS}) t
+ORDER BY o, "Course\"""", overrides=[percent_column("Attendance"), by_name("Course", ("custom.width", 240)),
+                                         *[by_name(n, ("custom.width", 100)) for n in
+                                           ("Sessions", "Present", "Late", "Excused", "Absent")]]),
+            text_panel("", 24, 2, RULE_TEXT),
+        ]),
+        ("${section}", False, [
+            table("Every session", 24, 18, f"""
+SELECT starts_at AS "Session", initcap(status) AS "Status",
+       coalesce(initcap(r.req_status), '') AS "Absence request",
+       round(100.0 * sum(CASE WHEN {ATTENDED} THEN 1 ELSE 0 END) OVER w
+             / NULLIF(count(*) OVER w - sum(CASE WHEN {LEFT_OUT} THEN 1 ELSE 0 END) OVER w, 0), 1)
+         AS "Attendance so far"
+FROM {SSS} s
+LEFT JOIN LATERAL (SELECT a.status AS req_status FROM reporting.absence_requests a
+                   WHERE a.student_id = s.student_id AND a.attendance_session_id = s.session_id
+                   ORDER BY a.created_at DESC LIMIT 1) r ON true
+WHERE s.student_id = '$student' AND s.section_id IN ($section) AND $__timeFilter(s.starts_at)
+WINDOW w AS (ORDER BY starts_at ROWS UNBOUNDED PRECEDING)
+ORDER BY starts_at""", "Every session of this course in the period, oldest first, with the running percentage.", [
+                by_name("Session", ("unit", "dateTimeAsLocal")), RECORD_STATE,
+                by_name("Attendance so far", ("unit", "percent"), ("decimals", 1), ("custom.width", 160)),
+                by_name("Absence request", ("mappings", [{"type": "value", "options": {
+                    "Pending": {"text": "Waiting", "index": 0}}}])),
+            ]),
+        ]),
+    ],
+)
+# One section per course: the row and its table repeat for every selected class.
+for p in attendance_record["panels"]:
+    if p["type"] == "row" and p["title"] == "${section}":
+        p["repeat"] = "section"
+
 OUT.mkdir(exist_ok=True)
-for name, board in (("overview", overview), ("class", class_report), ("student", student_report)):
+for name, board in (("overview", overview), ("class", class_report), ("student", student_report),
+                    ("record", attendance_record)):
     (OUT / f"{name}.json").write_text(json.dumps(board, indent=2, ensure_ascii=False) + "\n")
     print(f"wrote {OUT / name}.json")

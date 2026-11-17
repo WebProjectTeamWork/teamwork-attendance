@@ -13,13 +13,14 @@ docker compose run --rm -v ./grafana:/app/grafana api python -m grafana.seed_dem
 Open <http://localhost:3000>, log in as `admin` / `grafana-dev-only`. The **Attendance overview** is the home
 page.
 
-## The three reports
+## The reports
 
 | Report | For | What is on it |
 |---|---|---|
 | **Attendance overview** (home page) | all classes of the selected professors | headline numbers, trend with the target line, classes compared, students below target, every session, how and when students check in |
 | **Class report** | one class | attendance register (one row per student, one cell per session), attendance per session, each week's split, students, absence requests |
 | **Student report** | one student | running attendance against the target, each class, week-by-week history, missed sessions with their absence request |
+| **Attendance record** | one student, to hand out | name, period and overall attendance %, attendance % per course, then every session of each course with its state, absence request and running % |
 
 Click a class name or bar to open its class report, or a student name for the student report. The settings and
 time range come along. The buttons under the settings switch between the three reports.

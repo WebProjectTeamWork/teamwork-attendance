@@ -1286,6 +1286,136 @@
         "sortBy": []
       },
       "id": 12
+    },
+    {
+      "type": "table",
+      "title": "Every session",
+      "description": "The full record: every session in the time range, by class, oldest first. Export it with the panel menu → Inspect → Data → Download CSV.",
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "attendance-db"
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 35,
+        "w": 24,
+        "h": 14
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "attendance-db"
+          },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT s.section_name AS \"Class\", s.starts_at AS \"Session\", initcap(s.status) AS \"State\",\n       coalesce(initcap(r.status), '') AS \"Absence request\"\nFROM reporting.student_session_status s\nLEFT JOIN LATERAL (SELECT status FROM reporting.absence_requests a\n                   WHERE a.student_id = s.student_id AND a.attendance_session_id = s.session_id\n                   ORDER BY a.created_at DESC LIMIT 1) r ON true\nWHERE s.student_id = '$student' AND s.section_id IN ($section) AND $__timeFilter(s.starts_at)\nORDER BY s.section_name, s.starts_at"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": {
+              "type": "auto"
+            },
+            "filterable": true
+          },
+          "noValue": "–"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Session"
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "dateTimeAsLocal"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "State"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "Present": {
+                        "color": "#2a78d6",
+                        "index": 0
+                      },
+                      "Late": {
+                        "color": "#c98500",
+                        "index": 1
+                      },
+                      "Excused": {
+                        "color": "#1baf7a",
+                        "index": 2
+                      },
+                      "Absent": {
+                        "color": "#d03b3b",
+                        "index": 3
+                      }
+                    }
+                  }
+                ]
+              },
+              {
+                "id": "custom.cellOptions",
+                "value": {
+                  "type": "color-background",
+                  "mode": "basic"
+                }
+              },
+              {
+                "id": "custom.width",
+                "value": 110
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Absence request"
+            },
+            "properties": [
+              {
+                "id": "mappings",
+                "value": [
+                  {
+                    "type": "value",
+                    "options": {
+                      "Pending": {
+                        "text": "Waiting",
+                        "index": 0
+                      }
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "showHeader": true,
+        "cellHeight": "sm",
+        "footer": {
+          "show": false
+        },
+        "sortBy": []
+      },
+      "id": 13
     }
   ]
 }
